@@ -355,7 +355,7 @@
 
 <div class="container">
   <div class="page-header">
-    <div class="page-title">🔍 CRM Compliance Audit</div>
+    <div class="page-title">🔍 Compliance Audit</div>
     <div class="page-sub">Mark "No" for ANY attribute → that sub-category loses ALL points (10 points each)</div>
   </div>
 
@@ -431,7 +431,7 @@
     <!-- CALL - Column D -->
     <div class="subcat-card" data-subcat="call">
       <div class="subcat-header">
-        <div class="subcat-name">📞 Call <span class="attr-col">→ Column D</span></div>
+        <div class="subcat-name"> Call <span class="attr-col">→ Column D</span></div>
         <div class="subcat-points" id="call-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -448,7 +448,7 @@
     <!-- WHATSAPP - Columns E, F, G -->
     <div class="subcat-card" data-subcat="whatsapp">
       <div class="subcat-header">
-        <div class="subcat-name">💬 WhatsApp <span class="attr-col">→ E,F,G</span></div>
+        <div class="subcat-name"> WhatsApp <span class="attr-col">→ E,F,G</span></div>
         <div class="subcat-points" id="whatsapp-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -461,7 +461,7 @@
     <!-- EMAIL - Columns H, I, J -->
     <div class="subcat-card" data-subcat="email">
       <div class="subcat-header">
-        <div class="subcat-name">📧 Email <span class="attr-col">→ H,I,J</span></div>
+        <div class="subcat-name"> Email <span class="attr-col">→ H,I,J</span></div>
         <div class="subcat-points" id="email-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -474,7 +474,7 @@
     <!-- DESCRIPTION - Columns K, L -->
     <div class="subcat-card" data-subcat="description">
       <div class="subcat-header">
-        <div class="subcat-name">📝 Call Description <span class="attr-col">→ K,L</span></div>
+        <div class="subcat-name"> Call Description <span class="attr-col">→ K,L</span></div>
         <div class="subcat-points" id="description-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -674,10 +674,10 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
     const params = new URLSearchParams();
     Object.entries(payload).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') params.append(k, v); });
     await fetch(SHEET_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-    showToast('✅ Audit Submitted !', 'success');
+    showToast(' Audit Submitted !', 'success');
     setTimeout(() => resetForm(), 1500);
   } catch (err) {
-    showToast('❌ Submission failed.', 'error');
+    showToast(' Submission failed.', 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '⬆ Submit Audit to Sheet';
