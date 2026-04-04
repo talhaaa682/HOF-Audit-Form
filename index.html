@@ -486,7 +486,7 @@
     <!-- LEAD STAGE (compliance) - Columns M, N, O -->
     <div class="subcat-card" data-subcat="leadstage">
       <div class="subcat-header">
-        <div class="subcat-name">🎯 Lead Stage (Compliance) <span class="attr-col">→ M,N,O</span></div>
+        <div class="subcat-name"> Lead Stage (Compliance) <span class="attr-col">→ M,N,O</span></div>
         <div class="subcat-points" id="leadstage-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -499,7 +499,7 @@
     <!-- OUTCOME - Column P -->
     <div class="subcat-card" data-subcat="outcome">
       <div class="subcat-header">
-        <div class="subcat-name">✅ Outcome <span class="attr-col">→ Column P</span></div>
+        <div class="subcat-name"> Outcome <span class="attr-col">→ Column P</span></div>
         <div class="subcat-points" id="outcome-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -510,7 +510,7 @@
     <!-- DEAL - Column Q -->
     <div class="subcat-card" data-subcat="deal">
       <div class="subcat-header">
-        <div class="subcat-name">💼 Deal <span class="attr-col">→ Column Q</span></div>
+        <div class="subcat-name"> Deal <span class="attr-col">→ Column Q</span></div>
         <div class="subcat-points" id="deal-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -521,7 +521,7 @@
     <!-- PIPELINE - Columns R, S -->
     <div class="subcat-card" data-subcat="pipeline">
       <div class="subcat-header">
-        <div class="subcat-name">🔀 Pipeline & Timeline <span class="attr-col">→ R,S</span></div>
+        <div class="subcat-name"> Pipeline & Timeline <span class="attr-col">→ R,S</span></div>
         <div class="subcat-points" id="pipeline-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -533,7 +533,7 @@
     <!-- TASK - Columns T, U, V -->
     <div class="subcat-card" data-subcat="task">
       <div class="subcat-header">
-        <div class="subcat-name">📌 Task <span class="attr-col">→ T,U,V</span></div>
+        <div class="subcat-name"> Task <span class="attr-col">→ T,U,V</span></div>
         <div class="subcat-points" id="task-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -546,7 +546,7 @@
     <!-- TIMELY - Column W -->
     <div class="subcat-card" data-subcat="timely">
       <div class="subcat-header">
-        <div class="subcat-name">⏱️ Timely Contact <span class="attr-col">→ Column W</span></div>
+        <div class="subcat-name"> Timely Contact <span class="attr-col">→ Column W</span></div>
         <div class="subcat-points" id="timely-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -654,8 +654,8 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
     comments: document.getElementById('comments').value
   };
   
-  if (!payload.consultant || !payload.firstContactType || !payload.leadStageValue || !payload.caseLink || !payload.auditorName) {
-    showToast('⚠️ Please fill all required fields.', 'error');
+  if (!payload.consultant || !payload.leadStageValue || !payload.caseLink || !payload.auditorName) {
+    showToast('⚠️  Fill all required fields.', 'error');
     return;
   }
   
@@ -674,7 +674,7 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
     const params = new URLSearchParams();
     Object.entries(payload).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') params.append(k, v); });
     await fetch(SHEET_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-    showToast('✅ Audit submitted successfully!', 'success');
+    showToast('✅ Audit Submitted !', 'success');
     setTimeout(() => resetForm(), 1500);
   } catch (err) {
     showToast('❌ Submission failed.', 'error');
