@@ -11,24 +11,22 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="shortcut icon" href="favicon.ico">
 
-  <!-- 👆 END OF ADDITION 👆 -->
-  
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #22263a;
-    --border: #2e3350;
-    --accent: #4f8ef7;
-    --accent2: #7c5cfc;
+    --bg: #0b0f1e;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #263352;
+    --accent: #6366f1;
+    --accent2: #818cf8;
     --green: #22c55e;
     --red: #ef4444;
     --yellow: #f59e0b;
-    --text: #e8eaf0;
-    --text2: #8b90a7;
-    --text3: #545878;
-    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --text: #e2e8f8;
+    --text2: #8b94b8;
+    --text3: #4a5280;
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
     --radius: 12px;
   }
   .theme-light {
@@ -59,6 +57,11 @@
     --border: #1a2e45; --accent: #34d399; --accent2: #6ee7b7;
     --text: #d1fae5; --text2: #5ba882; --text3: #1e4d3a;
   }
+  .theme-indigo {
+    --bg: #0b0f1e; --surface: #111827; --surface2: #1a2236;
+    --border: #263352; --accent: #6366f1; --accent2: #818cf8;
+    --text: #e2e8f8; --text2: #8b94b8; --text3: #4a5280;
+  }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -69,22 +72,44 @@
     transition: all 0.3s ease;
   }
 
+  /* ─── TOPBAR ─── */
   .topbar {
     position: sticky; top: 0; z-index: 100;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 24px;
+    padding: 0 20px;
     display: flex; align-items: center; justify-content: space-between;
-    height: 56px;
+    height: 60px;
     backdrop-filter: blur(12px);
+    gap: 12px;
   }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar-logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px; font-weight: 500;
+  .topbar-left { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+  /* Logo */
+  .logo-wrap {
+    display: flex; align-items: center; gap: 9px;
+    text-decoration: none;
+  }
+  .logo-icon {
+    width: 34px; height: 34px; flex-shrink: 0;
+    border-radius: 6px; object-fit: contain;
+  }
+  .logo-text-block { display: flex; flex-direction: column; line-height: 1; }
+  .logo-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 700;
     color: var(--accent);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
+  .logo-sub {
+    font-size: 9px; font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
   .live-badge {
     display: flex; align-items: center; gap: 5px;
     font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
@@ -92,6 +117,7 @@
     background: rgba(34,197,94,0.1);
     border: 1px solid rgba(34,197,94,0.2);
     padding: 3px 8px; border-radius: 20px;
+    flex-shrink: 0;
   }
   .live-dot {
     width: 6px; height: 6px; border-radius: 50%;
@@ -100,16 +126,38 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  .theme-switcher { display: flex; align-items: center; gap: 6px; }
-  .theme-label { font-size: 11px; color: var(--text3); margin-right: 4px; }
+  /* Topbar right group */
+  .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  .theme-switcher { display: flex; align-items: center; gap: 5px; }
+  .theme-label { font-size: 11px; color: var(--text3); margin-right: 2px; }
   .theme-btn {
-    width: 28px; height: 28px; border-radius: 50%;
+    width: 26px; height: 26px; border-radius: 50%;
     border: 2px solid transparent; cursor: pointer;
-    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; display: flex; align-items: center; justify-content: center;
     background: var(--surface2); transition: all 0.2s;
   }
   .theme-btn:hover, .theme-btn.active { border-color: var(--accent); transform: scale(1.15); }
 
+  /* Pinned submit button in topbar */
+  .topbar-submit-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.35);
+    flex-shrink: 0;
+  }
+  .topbar-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(99,102,241,0.5); }
+  .topbar-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ─── SCORE STRIP ─── */
   .score-strip {
     background: linear-gradient(135deg, var(--surface), var(--surface2));
     border-bottom: 1px solid var(--border);
@@ -272,7 +320,7 @@
   .attr-btn.no.active { background: rgba(239,68,68,0.2); border-color: var(--red); color: var(--red); }
 
   .submit-area {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: flex-start;
     gap: 14px; margin-top: 24px; flex-wrap: wrap;
   }
   .btn-reset {
@@ -317,24 +365,51 @@
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast.success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
   .toast.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
-  .toast.info { background: rgba(79,142,247,0.15); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); }
+  .toast.info { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: var(--accent); }
+
+  /* Responsive topbar */
+  @media(max-width: 640px) {
+    .logo-sub, .theme-label { display: none; }
+    .topbar-submit-btn span.btn-text { display: none; }
+    .topbar { padding: 0 12px; }
+  }
 </style>
 </head>
-<body class="theme-midnight">
+<body class="theme-indigo">
 
 <div class="topbar">
+  <!-- LOGO -->
   <div class="topbar-left">
-    <span class="topbar-logo">CRM · COMPLIANCE AUDIT</span>
+    <a class="logo-wrap" href="#">
+      <img src="favicon-32x32.png" alt="Logo" class="logo-icon" onerror="this.src='apple-touch-icon.png'"/>
+      <div class="logo-text-block">
+        <span class="logo-title">Compliance Audit</span>
+        <span class="logo-sub">CRM · Sheet Sync</span>
+      </div>
+    </a>
     <div class="live-badge"><div class="live-dot"></div>LIVE · SHEET SYNC</div>
   </div>
-  <div class="theme-switcher">
-    <span class="theme-label">Theme</span>
-    <button class="theme-btn active" data-theme="theme-midnight">🌙</button>
-    <button class="theme-btn" data-theme="theme-light">☀️</button>
-    <button class="theme-btn" data-theme="theme-ocean">🌊</button>
-    <button class="theme-btn" data-theme="theme-rose">🌸</button>
-    <button class="theme-btn" data-theme="theme-coffee">☕</button>
-    <button class="theme-btn" data-theme="theme-aurora">✨</button>
+
+  <!-- RIGHT: Theme + Pinned Submit -->
+  <div class="topbar-right">
+    <div class="theme-switcher">
+      <span class="theme-label">Theme</span>
+      <button class="theme-btn active" data-theme="theme-indigo" title="Indigo (Default)">💜</button>
+      <button class="theme-btn" data-theme="theme-midnight" title="Midnight">🌙</button>
+      <button class="theme-btn" data-theme="theme-light" title="Light">☀️</button>
+      <button class="theme-btn" data-theme="theme-ocean" title="Ocean">🌊</button>
+      <button class="theme-btn" data-theme="theme-rose" title="Rose">🌸</button>
+      <button class="theme-btn" data-theme="theme-coffee" title="Coffee">☕</button>
+      <button class="theme-btn" data-theme="theme-aurora" title="Aurora">✨</button>
+    </div>
+
+    <!-- PINNED SUBMIT BUTTON -->
+    <button type="button" class="topbar-submit-btn" id="topbarSubmitBtn" onclick="triggerSubmit()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19V5M5 12l7-7 7 7"/>
+      </svg>
+      <span class="btn-text">Submit Audit</span>
+    </button>
   </div>
 </div>
 
@@ -390,9 +465,9 @@
               <option value="">— Select Consultant —</option>
               <option>Muizza Shahrukh</option><option>Abdul Rehman</option><option>Muhammad Sultan</option>
               <option>Rabbiya Mohsin</option><option>Muhammad Diean</option><option>Muhammad Shahzad Fiaz</option>
-              <option>Ayesha Zahid</option><option>Syed Hussain Ali Haris</option>Ahmad Ali</option><option>Ali Raza Qureshi</option><option>Mishal Naseem</option><option>Hamza Manzoor</option>
+              <option>Ayesha Zahid</option><option>Syed Hussain Ali Haris</option><option>Ahmad Ali</option><option>Ali Raza Qureshi</option><option>Mishal Naseem</option><option>Hamza Manzoor</option>
               <option>Fahad Waseem</option><option>Atika Zainab</option><option>Fatima Zahid</option>
-              <option></option>Tuba</option><option>Mishal Fatima</option>
+              <option>Tuba</option><option>Mishal Fatima</option>
             </select>
           </div>
           <div class="field">
@@ -455,7 +530,7 @@
     <!-- WHATSAPP - Columns E, F, G -->
     <div class="subcat-card" data-subcat="whatsapp">
       <div class="subcat-header">
-        <div class="subcat-name"> WhatsApp <span </span></div>
+        <div class="subcat-name"> WhatsApp <span class="attr-col">→ E,F,G</span></div>
         <div class="subcat-points" id="whatsapp-points">10 / 10</div>
       </div>
       <div class="subcat-body">
@@ -578,6 +653,11 @@ const SHEET_URL = "https://script.google.com/macros/s/AKfycbzYzfpKLvorsA8pcGHsEA
 const subcatErrors = { call: false, whatsapp: false, email: false, description: false, leadstage: false, outcome: false, deal: false, pipeline: false, task: false, timely: false };
 const columnValues = {};
 
+// Allow topbar button to trigger the form submit
+function triggerSubmit() {
+  document.getElementById('auditForm').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+}
+
 function setAttr(btn, isYes) {
   const subcat = btn.dataset.subcat;
   const col = btn.dataset.col;
@@ -647,6 +727,22 @@ function showToast(msg, type = 'info') {
   setTimeout(() => t.classList.remove('show'), 4000);
 }
 
+function setSubmitting(state) {
+  const btn = document.getElementById('submitBtn');
+  const topBtn = document.getElementById('topbarSubmitBtn');
+  if (state) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> Submitting...';
+    topBtn.disabled = true;
+    topBtn.innerHTML = '⏳ Submitting...';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '⬆ Submit Audit to Sheet';
+    topBtn.disabled = false;
+    topBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span class="btn-text">Submit Audit</span>`;
+  }
+}
+
 document.getElementById('auditForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   
@@ -672,9 +768,7 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
     payload[`col_${col}`] = val === true ? 'Yes' : (val === false ? 'No' : '');
   });
   
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> Submitting...';
+  setSubmitting(true);
   showToast('Submitting audit to Google Sheet...', 'info');
   
   try {
@@ -686,8 +780,7 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
   } catch (err) {
     showToast(' Submission failed.', 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '⬆ Submit Audit to Sheet';
+    setSubmitting(false);
   }
 });
 
