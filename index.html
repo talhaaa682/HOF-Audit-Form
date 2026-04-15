@@ -4,15 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRM Compliance Audit</title>
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="shortcut icon" href="favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════
-   THEME SYSTEM
-══════════════════════════════════════ */
 :root {
   --bg:#0b0f1e; --surface:#111827; --surface2:#1a2236; --surface3:#212d45;
   --border:#263352; --border2:#1e2a44;
@@ -32,92 +25,31 @@
 .t-gold{--bg:#0d0900;--surface:#181200;--surface2:#221a00;--surface3:#2e2400;--border:#604800;--border2:#443400;--accent:#fbbf24;--accent2:#fde68a;--accent-glow:rgba(251,191,36,0.25);--text:#fff3c0;--text2:#a08830;--text3:#604e00}
 .t-light{--bg:#f0f4ff;--surface:#ffffff;--surface2:#f4f6ff;--surface3:#eceffe;--border:#d8ddf5;--border2:#e5e8f8;--accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,0.15);--text:#1a1d35;--text2:#5a60a0;--text3:#9ca0c8;--shadow:0 4px 20px rgba(0,0,0,0.1)}
 .t-neon{--bg:#080012;--surface:#0f0020;--surface2:#180030;--surface3:#200040;--border:#3d006e;--border2:#2a004e;--accent:#e040fb;--accent2:#ce93d8;--accent-glow:rgba(224,64,251,0.3);--text:#f5e0ff;--text2:#9a60b0;--text3:#4a1870}
-
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Inter',sans-serif;
-  background:var(--bg); color:var(--text);
-  min-height:100vh; transition:background 0.4s,color 0.3s;
-}
-body::before{
-  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);
-  background-size:48px 48px; opacity:0.3;
-}
-body::after{
-  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:radial-gradient(ellipse 60% 40% at 50% 0%,var(--accent-glow),transparent 70%);
-}
-
-/* ── TOPBAR ── */
-.topbar{
-  position:sticky; top:0; z-index:200;
-  height:var(--topbar-h);
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:0 20px;
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  backdrop-filter:blur(20px);
-  box-shadow:0 1px 0 var(--border),0 4px 24px rgba(0,0,0,0.4);
-}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.3s}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:48px 48px;opacity:0.3}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 50% 0%,var(--accent-glow),transparent 70%)}
+.topbar{position:sticky;top:0;z-index:200;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(0,0,0,0.4)}
 .topbar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-icon{width:34px;height:34px;border-radius:8px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 0 6px var(--accent-glow))}
 .logo-text-block{display:flex;flex-direction:column;line-height:1}
 .logo-title{font-size:13px;font-weight:800;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase}
 .logo-sub{font-size:9px;font-weight:500;color:var(--text3);letter-spacing:0.14em;text-transform:uppercase;margin-top:3px}
 .live-badge{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--green);text-transform:uppercase;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);padding:3px 9px;border-radius:20px}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
 @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 4px var(--green)}50%{opacity:0.3;box-shadow:none}}
-
 .topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.surprise-btn{
-  display:flex;align-items:center;gap:7px;
-  padding:7px 16px;border-radius:9px;
-  border:1px solid var(--border);background:var(--surface2);
-  color:var(--text2);font-size:11px;font-weight:600;letter-spacing:0.04em;
-  cursor:pointer;transition:all 0.2s;white-space:nowrap;
-}
+.surprise-btn{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .surprise-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--surface3);box-shadow:0 0 12px var(--accent-glow)}
 .surprise-icon{font-size:14px;display:inline-block;animation:spin-slow 4s linear infinite}
 @keyframes spin-slow{to{transform:rotate(360deg)}}
-
-.topbar-submit-btn{
-  display:flex;align-items:center;gap:7px;
-  padding:8px 20px;border-radius:9px;border:none;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#fff;font-size:12px;font-weight:700;letter-spacing:0.04em;
-  cursor:pointer;transition:all 0.2s;white-space:nowrap;
-  box-shadow:0 2px 16px var(--accent-glow);
-}
+.topbar-submit-btn{display:flex;align-items:center;gap:7px;padding:8px 20px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;white-space:nowrap;box-shadow:0 2px 16px var(--accent-glow)}
 .topbar-submit-btn:hover{transform:translateY(-1px);box-shadow:0 4px 24px var(--accent-glow)}
 .topbar-submit-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none}
-
-/* ── LAYOUT ── */
-.layout{
-  position:relative;z-index:1;
-  display:grid;grid-template-columns:1fr 260px;
-  min-height:calc(100vh - var(--topbar-h));
-  align-items:start;
-}
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:1fr 260px;min-height:calc(100vh - var(--topbar-h));align-items:start}
 .main-col{padding:28px 24px 80px;min-width:0}
-.sidebar-col{
-  position:sticky;top:var(--topbar-h);
-  height:calc(100vh - var(--topbar-h));
-  overflow-y:auto;
-  padding:20px 16px 40px;
-  border-left:1px solid var(--border);
-  background:var(--surface);
-  display:flex;flex-direction:column;gap:10px;
-  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
-}
-
-/* ── SCORE SIDEBAR ── */
-.score-header{
-  padding:16px;background:var(--surface2);
-  border:1px solid var(--border);border-radius:var(--radius);
-  text-align:center;position:relative;overflow:hidden;
-}
+.sidebar-col{position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto;padding:20px 16px 40px;border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.score-header{padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:center;position:relative;overflow:hidden}
 .score-header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--accent-glow),transparent 70%);pointer-events:none}
 .score-label-top{font-size:9px;font-weight:700;letter-spacing:0.18em;color:var(--text3);text-transform:uppercase}
 .score-big{font-family:'JetBrains Mono',monospace;font-size:54px;font-weight:700;line-height:1;color:var(--accent);text-shadow:0 0 24px var(--accent-glow);margin:6px 0 2px;transition:color 0.4s}
@@ -126,14 +58,8 @@ body::after{
 .score-ring{transform:rotate(-90deg)}
 .ring-bg{fill:none;stroke:var(--border);stroke-width:6}
 .ring-fg{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 0.6s ease,stroke 0.4s;filter:drop-shadow(0 0 5px var(--accent))}
-
 .score-cats-list{display:flex;flex-direction:column;gap:6px}
-.score-cat-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 12px;border-radius:9px;
-  background:var(--surface2);border:1px solid var(--border);
-  transition:all 0.2s;
-}
+.score-cat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);transition:all 0.2s}
 .score-cat-row.error{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3)}
 .score-cat-row.ok{border-color:rgba(34,197,94,0.2)}
 .scat-name{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px}
@@ -143,13 +69,9 @@ body::after{
 .scat-val{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--surface3);color:var(--accent);transition:all 0.3s}
 .score-cat-row.error .scat-val{color:var(--red);background:rgba(239,68,68,0.15)}
 .score-cat-row.ok .scat-val{color:var(--green);background:rgba(34,197,94,0.12)}
-
-/* ── PAGE HEADER ── */
 .page-header{margin-bottom:24px}
 .page-title{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;letter-spacing:0.01em}
 .page-sub{font-size:12px;color:var(--text2);margin-top:5px;line-height:1.5}
-
-/* ── SECTIONS ── */
 .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow);transition:border-color 0.2s,box-shadow 0.2s}
 .section:hover{border-color:var(--accent);box-shadow:var(--shadow),0 0 0 1px var(--accent-glow)}
 .section-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
@@ -161,8 +83,6 @@ body::after{
 .section.collapsed .chevron{transform:rotate(-90deg)}
 .section-body{padding:16px;display:flex;flex-direction:column;gap:12px}
 .section.collapsed .section-body{display:none}
-
-/* ── FIELDS ── */
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
 .field label .req{color:var(--red)}
@@ -172,7 +92,22 @@ body::after{
 .fields-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:540px){.fields-row{grid-template-columns:1fr}}
 
-/* ── SUBCAT CARDS ── */
+/* PIN SYSTEM */
+.field-with-pin{display:flex;flex-direction:column;gap:6px;position:relative}
+.field-label-row{display:flex;align-items:center;justify-content:space-between}
+.field-label-row label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
+.pin-btn{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text3);font-size:9px;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;text-transform:uppercase;flex-shrink:0}
+.pin-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pin-btn.pinned{border-color:var(--yellow);color:var(--yellow);background:rgba(245,158,11,0.12);box-shadow:0 0 8px rgba(245,158,11,0.2)}
+.pin-icon{font-size:10px}
+.pinned-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--yellow);background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:2px 8px;border-radius:12px;margin-left:6px;letter-spacing:0.06em}
+.field-with-pin select,.field-with-pin input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s,box-shadow 0.2s,opacity 0.2s;width:100%}
+.field-with-pin select:focus,.field-with-pin input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.field-with-pin.is-pinned select,.field-with-pin.is-pinned input{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.05);cursor:default}
+.pinned-val-display{font-size:12px;color:var(--yellow);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-sm);padding:9px 14px;font-weight:600;display:none}
+.field-with-pin.is-pinned .pinned-val-display{display:block}
+.field-with-pin.is-pinned select,.field-with-pin.is-pinned input{display:none}
+
 .subcat-card{background:var(--surface2);border:1px solid var(--border);border-radius:11px;margin-bottom:10px;overflow:hidden;transition:border-color 0.2s}
 .subcat-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border)}
 .subcat-name{font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;letter-spacing:0.03em}
@@ -189,40 +124,26 @@ body::after{
 .attr-btn:hover{border-color:var(--accent);color:var(--accent)}
 .attr-btn.yes.active{background:rgba(34,197,94,0.18);border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(34,197,94,0.2)}
 .attr-btn.no.active{background:rgba(239,68,68,0.18);border-color:var(--red);color:var(--red);box-shadow:0 0 8px rgba(239,68,68,0.2)}
-
-/* ── SUBMIT ── */
 .submit-area{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
 .btn-reset{padding:11px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
 .btn-submit{flex:1;padding:13px 24px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:14px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px var(--accent-glow)}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--accent-glow)}
 .btn-submit:disabled{opacity:0.45;cursor:not-allowed;transform:none}
-
-/* ── TOAST ── */
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:13px 20px;border-radius:11px;font-size:13px;font-weight:600;letter-spacing:0.02em;box-shadow:0 8px 32px rgba(0,0,0,0.35);transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);max-width:340px;backdrop-filter:blur(12px)}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:var(--green)}
 .toast.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
 .toast.info{background:rgba(99,102,241,0.12);border:1px solid var(--border);color:var(--accent)}
-
-/* ── RESPONSIVE ── */
-@media(max-width:860px){
-  .layout{grid-template-columns:1fr}
-  .sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}
-  .score-ring-wrap{display:none}
-  .score-cats-list{flex-direction:row;flex-wrap:wrap;gap:6px}
-  .score-cat-row{flex:1;min-width:calc(50% - 3px)}
-}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}.score-ring-wrap{display:none}.score-cats-list{flex-direction:row;flex-wrap:wrap;gap:6px}.score-cat-row{flex:1;min-width:calc(50% - 3px)}}
 @media(max-width:540px){.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
     <a class="logo-wrap" href="#">
-      <img class="logo-icon" src="favicon-32x32.png" alt="Logo" onerror="this.src='apple-touch-icon.png'">
       <div class="logo-text-block">
         <span class="logo-title">Compliance Audit</span>
         <span class="logo-sub">CRM · Sheet Sync</span>
@@ -241,19 +162,14 @@ body::after{
   </div>
 </div>
 
-<!-- LAYOUT -->
 <div class="layout">
-
-  <!-- MAIN FORM -->
   <div class="main-col">
     <div class="page-header">
       <div class="page-title">⬡ Compliance Audit</div>
-      <div class="page-sub">Mark "No" for ANY attribute → that sub-category loses ALL 10 points</div>
+      <div class="page-sub">Mark "No" for ANY attribute → that sub-category loses ALL 10 points &nbsp;·&nbsp; 📌 Pin fields to keep values across bulk audits</div>
     </div>
 
     <form id="auditForm">
-
-      <!-- CASE INFO -->
       <div class="section" id="sec-case">
         <div class="section-header" onclick="toggleSection('sec-case')">
           <div class="section-header-left">
@@ -267,8 +183,13 @@ body::after{
         </div>
         <div class="section-body">
           <div class="fields-row">
-            <div class="field">
-              <label>Consultant <span class="req">*</span></label>
+
+            <!-- CONSULTANT (pinnable) -->
+            <div class="field-with-pin" id="pin-wrap-consultant">
+              <div class="field-label-row">
+                <label>Consultant <span class="req">*</span><span class="pinned-badge" id="pin-badge-consultant" style="display:none">📌 PINNED</span></label>
+                <button type="button" class="pin-btn" id="pin-btn-consultant" onclick="togglePin('consultant')"><span class="pin-icon">📌</span> Pin</button>
+              </div>
               <select id="consultant" required>
                 <option value="">— Select Consultant —</option>
                 <option>Muizza Shahrukh</option><option>Abdul Rehman</option><option>Muhammad Sultan</option>
@@ -276,9 +197,14 @@ body::after{
                 <option>Ayesha Zahid</option><option>Syed Hussain Ali Haris</option><option>Ahmad Ali</option>
                 <option>Ali Raza Qureshi</option><option>Mishal Naseem</option><option>Hamza Manzoor</option>
                 <option>Fahad Waseem</option><option>Atika Zainab</option><option>Fatima Zahid</option>
-                <option>Tuba</option><option>Mishal Fatima</option><option>Muhammad Hanzla</option><option>Muhammad Awaad bin Imran</option><option>Badar Saeed</option><option>Zahid Muneer</option><option>Aqsa Fareed</option><option>Mashal Fatima</option>
+                <option>Tuba</option><option>Mishal Fatima</option><option>Muhammad Hanzla</option>
+                <option>Muhammad Awaad bin Imran</option><option>Badar Saeed</option><option>Zahid Muneer</option>
+                <option>Aqsa Fareed</option><option>Mashal Fatima</option>
               </select>
+              <div class="pinned-val-display" id="pin-display-consultant"></div>
             </div>
+
+            <!-- CONTACT TYPE -->
             <div class="field">
               <label>First Contact Type <span class="req">*</span></label>
               <select id="contactType" required>
@@ -286,9 +212,14 @@ body::after{
               </select>
             </div>
           </div>
+
           <div class="fields-row">
-            <div class="field">
-              <label>Lead Stage <span class="req">*</span></label>
+            <!-- LEAD STAGE (pinnable) -->
+            <div class="field-with-pin" id="pin-wrap-leadStage">
+              <div class="field-label-row">
+                <label>Lead Stage <span class="req">*</span><span class="pinned-badge" id="pin-badge-leadStage" style="display:none">📌 PINNED</span></label>
+                <button type="button" class="pin-btn" id="pin-btn-leadStage" onclick="togglePin('leadStage')"><span class="pin-icon">📌</span> Pin</button>
+              </div>
               <select id="leadStage" required>
                 <option value="">— Select Lead Stage —</option>
                 <option>No Answer</option><option>Schedule Call Back</option><option>Qualified CAN</option>
@@ -297,22 +228,32 @@ body::after{
                 <option>Switched Off</option><option>Cannot Dial</option><option>Outside GCC</option>
                 <option>Sale</option><option>Already Migrated</option><option>Started with competitor</option><option>Blank</option>
               </select>
+              <div class="pinned-val-display" id="pin-display-leadStage"></div>
             </div>
+
             <div class="field">
               <label>Case Link (HubSpot URL) <span class="req">*</span></label>
               <input type="url" id="caseLink" placeholder="https://app.hubspot.com/..." required/>
             </div>
           </div>
+
           <div class="fields-row">
             <div class="field">
               <label>Client Occupation</label>
               <input type="text" id="occupation" placeholder="e.g. Engineer, Doctor..."/>
             </div>
-            <div class="field">
-              <label>Auditor Name <span class="req">*</span></label>
+
+            <!-- AUDITOR NAME (pinnable) -->
+            <div class="field-with-pin" id="pin-wrap-auditorName">
+              <div class="field-label-row">
+                <label>Auditor Name <span class="req">*</span><span class="pinned-badge" id="pin-badge-auditorName" style="display:none">📌 PINNED</span></label>
+                <button type="button" class="pin-btn" id="pin-btn-auditorName" onclick="togglePin('auditorName')"><span class="pin-icon">📌</span> Pin</button>
+              </div>
               <input type="text" id="auditorName" placeholder="Your name" required/>
+              <div class="pinned-val-display" id="pin-display-auditorName"></div>
             </div>
           </div>
+
           <div class="field">
             <label>Comments / Observations</label>
             <textarea id="comments" placeholder="Any additional notes..."></textarea>
@@ -357,7 +298,7 @@ body::after{
         </div>
       </div>
 
-      <!-- LEAD STAGE -->
+      <!-- LEAD STAGE COMPLIANCE -->
       <div class="subcat-card" data-subcat="leadstage">
         <div class="subcat-header"><div class="subcat-name">🏷️ Lead Stage Compliance</div><div class="subcat-points" id="leadstage-points">10 / 10</div></div>
         <div class="subcat-body">
@@ -414,7 +355,6 @@ body::after{
         <button type="button" class="btn-reset" onclick="resetForm()">↺ Reset</button>
         <button type="submit" class="btn-submit" id="submitBtn">⬆ Submit Audit to Sheet</button>
       </div>
-
     </form>
   </div>
 
@@ -444,8 +384,8 @@ body::after{
       <div class="score-cat-row" id="sr-timely"><span class="scat-name"><span class="scat-dot"></span>Timely Contact</span><span class="scat-val">10/10</span></div>
     </div>
   </div>
-
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -453,6 +393,46 @@ const SHEET_URL="https://script.google.com/macros/s/AKfycbzYzfpKLvorsA8pcGHsEAkc
 const THEMES=['','t-cyber','t-matrix','t-hologram','t-fire','t-arctic','t-rose','t-gold','t-light','t-neon'];
 const THEME_NAMES=['Indigo','Cyber','Matrix','Hologram','Fire','Arctic','Rose','Gold','Light','Neon'];
 let themeIdx=0;
+
+// PIN STATE: fieldId -> {pinned, value}
+const pins={consultant:{pinned:false,value:''},leadStage:{pinned:false,value:''},auditorName:{pinned:false,value:''}};
+
+function togglePin(fieldId){
+  const el=document.getElementById(fieldId);
+  const wrap=document.getElementById('pin-wrap-'+fieldId);
+  const btn=document.getElementById('pin-btn-'+fieldId);
+  const badge=document.getElementById('pin-badge-'+fieldId);
+  const display=document.getElementById('pin-display-'+fieldId);
+  const p=pins[fieldId];
+
+  if(!p.pinned){
+    // PIN IT — capture current value
+    const val=el.value;
+    if(!val){showToast('⚠️ Select a value before pinning.','error');return;}
+    p.value=val;p.pinned=true;
+    display.textContent=val;
+    wrap.classList.add('is-pinned');
+    btn.classList.add('pinned');
+    btn.innerHTML='<span class="pin-icon">📌</span> Unpin';
+    badge.style.display='inline-flex';
+    showToast('📌 '+fieldId.replace(/([A-Z])/g,' $1').trim()+' pinned: '+val,'info');
+  } else {
+    // UNPIN
+    p.pinned=false;p.value='';
+    wrap.classList.remove('is-pinned');
+    btn.classList.remove('pinned');
+    btn.innerHTML='<span class="pin-icon">📌</span> Pin';
+    badge.style.display='none';
+    display.textContent='';
+    showToast('🔓 '+fieldId.replace(/([A-Z])/g,' $1').trim()+' unpinned.','info');
+  }
+}
+
+function getPinnedValue(fieldId){
+  const p=pins[fieldId];
+  if(p.pinned) return p.value;
+  return document.getElementById(fieldId).value;
+}
 
 function surpriseMe(){
   const pool=THEMES.map((_,i)=>i).filter(i=>i!==themeIdx);
@@ -483,10 +463,8 @@ function updateSubcatError(subcat){
 
 function updateScores(){
   let total=0;
-  const subcats=['call','whatsapp','email','description','leadstage','outcome','deal','pipeline','task','timely'];
-  subcats.forEach(s=>{
-    const pts=subcatErrors[s]?0:10;
-    total+=pts;
+  ['call','whatsapp','email','description','leadstage','outcome','deal','pipeline','task','timely'].forEach(s=>{
+    const pts=subcatErrors[s]?0:10;total+=pts;
     const pe=document.getElementById(`${s}-points`);
     if(pe){pe.textContent=`${pts} / 10`;pe.className='subcat-points '+(subcatErrors[s]?'error':'ok')}
     const sr=document.getElementById(`sr-${s}`);
@@ -502,11 +480,20 @@ function updateScores(){
 function toggleSection(id){document.getElementById(id).classList.toggle('collapsed')}
 
 function resetForm(){
-  document.getElementById('auditForm').reset();
+  // Only reset non-pinned fields
+  ['consultant','leadStage','auditorName'].forEach(fid=>{
+    if(!pins[fid].pinned) document.getElementById(fid).value='';
+  });
+  document.getElementById('contactType').value='';
+  document.getElementById('caseLink').value='';
+  document.getElementById('occupation').value='';
+  document.getElementById('comments').value='';
+  // Reset all toggles
   Object.keys(columnValues).forEach(k=>delete columnValues[k]);
   document.querySelectorAll('.attr-btn').forEach(b=>b.classList.remove('active'));
   Object.keys(subcatErrors).forEach(k=>subcatErrors[k]=false);
-  updateScores();showToast('Form has been reset.','info');
+  updateScores();
+  showToast('↺ Form reset — pinned fields preserved.','info');
 }
 
 function showToast(msg,type='info'){
@@ -523,9 +510,25 @@ function setSubmitting(state){
 
 document.getElementById('auditForm').addEventListener('submit',async function(e){
   e.preventDefault();
-  const payload={action:'submitAudit',consultant:document.getElementById('consultant').value,firstContactType:document.getElementById('contactType').value,leadStageValue:document.getElementById('leadStage').value,caseLink:document.getElementById('caseLink').value,occupation:document.getElementById('occupation').value,auditorName:document.getElementById('auditorName').value,comments:document.getElementById('comments').value};
-  if(!payload.consultant||!payload.leadStageValue||!payload.caseLink||!payload.auditorName){showToast('⚠️ Fill all required fields.','error');return;}
-  ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'].forEach(col=>{const v=columnValues[col];payload[`col_${col}`]=v===true?'Yes':v===false?'No':'';});
+  const consultant=getPinnedValue('consultant');
+  const leadStageValue=getPinnedValue('leadStage');
+  const auditorName=getPinnedValue('auditorName');
+  const payload={
+    action:'submitAudit',
+    consultant,
+    firstContactType:document.getElementById('contactType').value,
+    leadStageValue,
+    caseLink:document.getElementById('caseLink').value,
+    occupation:document.getElementById('occupation').value,
+    auditorName,
+    comments:document.getElementById('comments').value
+  };
+  if(!payload.consultant||!payload.leadStageValue||!payload.caseLink||!payload.auditorName){
+    showToast('⚠️ Fill all required fields.','error');return;
+  }
+  ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'].forEach(col=>{
+    const v=columnValues[col];payload[`col_${col}`]=v===true?'Yes':v===false?'No':'';
+  });
   setSubmitting(true);showToast('Submitting audit to Google Sheet...','info');
   try{
     const params=new URLSearchParams();
