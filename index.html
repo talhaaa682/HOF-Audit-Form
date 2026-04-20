@@ -541,9 +541,6 @@ function autofail(){
   ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'].forEach(col=>{columnValues[col]=false;});
   Object.keys(subcatErrors).forEach(k=>subcatErrors[k]=true);
   updateScores();
-  document.querySelectorAll('.attr-btn.no').forEach(b=>b.classList.add('active'));
-  document.querySelectorAll('.attr-btn.yes').forEach(b=>b.classList.remove('active'));
-  showToast('⛔ Autofail applied — score is 0. Submit when ready.','error');
 }
 
 updateScores();
