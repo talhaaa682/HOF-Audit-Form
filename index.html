@@ -548,8 +548,13 @@ document.getElementById('auditForm').addEventListener('submit',async function(e)
     showToast('⚠️ Fill all required fields.','error');return;
   }
   ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'].forEach(col=>{
-    const v=columnValues[col];payload[`col_${col}`]=v||'';
+    const v=columnValues[col];
+    // Send the raw value; use empty string only when truly unset (null/undefined)
+    payload[`col_${col}`] = (v !== null && v !== undefined) ? v : '';
   });
+  // Explicitly send the computed total score and autofail flag
+  payload.totalScore = document.getElementById('totalScore').textContent;
+  payload.autofailFlag = hasAutofail ? 'Yes' : 'No';
   setSubmitting(true);showToast('Submitting audit to Google Sheet...','info');
   try{
     const params=new URLSearchParams();
