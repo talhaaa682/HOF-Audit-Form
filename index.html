@@ -117,11 +117,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .attr-row:last-child{border-bottom:none}
 .attr-name{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px;flex:1}
 .attr-col-badge{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600;color:var(--accent);background:var(--accent-glow);padding:2px 6px;border-radius:4px;border:1px solid var(--accent);opacity:0.75;flex-shrink:0}
-.attr-toggle{display:flex;gap:6px;flex-shrink:0}
-.attr-btn{padding:5px 14px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;letter-spacing:0.03em;font-family:'Inter',sans-serif}
+.attr-toggle{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.attr-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;letter-spacing:0.03em;font-family:'Inter',sans-serif}
 .attr-btn:hover{border-color:var(--accent);color:var(--accent)}
 .attr-btn.yes.active{background:rgba(34,197,94,0.18);border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(34,197,94,0.2)}
 .attr-btn.no.active{background:rgba(239,68,68,0.18);border-color:var(--red);color:var(--red);box-shadow:0 0 8px rgba(239,68,68,0.2)}
+.attr-btn.autofail.active{background:rgba(185,28,28,0.25);border-color:var(--red);color:#fca5a5;box-shadow:0 0 8px rgba(239,68,68,0.3)}
 .submit-area{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
 .btn-reset{padding:11px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
@@ -133,9 +134,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .toast.success{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:var(--green)}
 .toast.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
 .toast.info{background:rgba(99,102,241,0.12);border:1px solid var(--border);color:var(--accent)}
-.btn-autofail{width:100%;margin-top:12px;padding:11px 16px;border-radius:var(--radius-sm);border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.1);color:var(--red);font-size:12px;font-weight:700;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;text-transform:uppercase;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px}
-.btn-autofail:hover{background:rgba(239,68,68,0.22);border-color:var(--red);box-shadow:0 0 16px rgba(239,68,68,0.3);transform:translateY(-1px)}
-.btn-autofail:active{transform:translateY(0)}
 @media(max-width:860px){.layout{grid-template-columns:1fr}.sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}.score-ring-wrap{display:none}.score-cats-list{flex-direction:row;flex-wrap:wrap;gap:6px}.score-cat-row{flex:1;min-width:calc(50% - 3px)}}
 @media(max-width:540px){.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
 </style>
@@ -167,7 +165,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="main-col">
     <div class="page-header">
       <div class="page-title">⬡ Compliance Audit</div>
-      <div class="page-sub">Mark "No" for ANY attribute → that sub-category loses ALL 10 points &nbsp;·&nbsp; 📌 Pin fields to keep values across bulk audits</div>
+      <div class="page-sub">Mark "No" for ANY attribute → that sub-category loses ALL 10 points &nbsp;·&nbsp; Mark "Autofail" on ANY attribute → whole audit = 0/100 &nbsp;·&nbsp; 📌 Pin fields to keep values across bulk audits</div>
     </div>
 
     <form id="auditForm">
@@ -266,7 +264,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="call">
         <div class="subcat-header"><div class="subcat-name">📞 Call</div><div class="subcat-points" id="call-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">D</span>Call Made</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="call" data-col="D" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="call" data-col="D" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">D</span>Call Made</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="call" data-col="D" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="call" data-col="D" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="call" data-col="D" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -274,9 +272,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="whatsapp">
         <div class="subcat-header"><div class="subcat-name">💬 WhatsApp</div><div class="subcat-points" id="whatsapp-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">E</span>WhatsApp Used (when required)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="whatsapp" data-col="E" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="whatsapp" data-col="E" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">F</span>WhatsApp Logged in HubSpot</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="whatsapp" data-col="F" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="whatsapp" data-col="F" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">G</span>WhatsApp Note (if unavailable)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="whatsapp" data-col="G" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="whatsapp" data-col="G" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">E</span>WhatsApp Used (when required)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="whatsapp" data-col="E" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="whatsapp" data-col="E" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="whatsapp" data-col="E" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">F</span>WhatsApp Logged in HubSpot</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="whatsapp" data-col="F" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="whatsapp" data-col="F" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="whatsapp" data-col="F" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">G</span>WhatsApp Note (if unavailable)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="whatsapp" data-col="G" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="whatsapp" data-col="G" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="whatsapp" data-col="G" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -284,9 +282,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="email">
         <div class="subcat-header"><div class="subcat-name">✉️ Email</div><div class="subcat-points" id="email-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">H</span>Email Sent (when required)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="email" data-col="H" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="email" data-col="H" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">I</span>Professional Tone (no AI/emojis)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="email" data-col="I" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="email" data-col="I" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">J</span>Company Signature Used</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="email" data-col="J" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="email" data-col="J" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">H</span>Email Sent (when required)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="email" data-col="H" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="email" data-col="H" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="email" data-col="H" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">I</span>Professional Tone (no AI/emojis)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="email" data-col="I" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="email" data-col="I" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="email" data-col="I" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">J</span>Company Signature Used</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="email" data-col="J" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="email" data-col="J" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="email" data-col="J" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -294,8 +292,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="description">
         <div class="subcat-header"><div class="subcat-name">📝 Call Description</div><div class="subcat-points" id="description-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">K</span>Description / Call Notes added</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="description" data-col="K" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="description" data-col="K" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">L</span>All Required Properties Completed</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="description" data-col="L" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="description" data-col="L" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">K</span>Description / Call Notes added</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="description" data-col="K" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="description" data-col="K" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="description" data-col="K" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">L</span>All Required Properties Completed</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="description" data-col="L" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="description" data-col="L" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="description" data-col="L" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -303,9 +301,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="leadstage">
         <div class="subcat-header"><div class="subcat-name">🏷️ Lead Stage Compliance</div><div class="subcat-points" id="leadstage-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">M</span>Lead Stage Updated After Contact</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="leadstage" data-col="M" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="leadstage" data-col="M" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">N</span>Qualified Stage Marked (if qualified)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="leadstage" data-col="N" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="leadstage" data-col="N" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">O</span>Correct Lead Stage Used (per SOP)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="leadstage" data-col="O" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="leadstage" data-col="O" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">M</span>Lead Stage Updated After Contact</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="leadstage" data-col="M" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="leadstage" data-col="M" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="leadstage" data-col="M" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">N</span>Qualified Stage Marked (if qualified)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="leadstage" data-col="N" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="leadstage" data-col="N" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="leadstage" data-col="N" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">O</span>Correct Lead Stage Used (per SOP)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="leadstage" data-col="O" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="leadstage" data-col="O" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="leadstage" data-col="O" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -313,7 +311,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="outcome">
         <div class="subcat-header"><div class="subcat-name">🎯 Outcome</div><div class="subcat-points" id="outcome-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">P</span>Outcome Recorded</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="outcome" data-col="P" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="outcome" data-col="P" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">P</span>Outcome Recorded</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="outcome" data-col="P" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="outcome" data-col="P" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="outcome" data-col="P" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -321,7 +319,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="deal">
         <div class="subcat-header"><div class="subcat-name">🤝 Deal</div><div class="subcat-points" id="deal-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">Q</span>Deal Created (if qualified)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="deal" data-col="Q" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="deal" data-col="Q" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">Q</span>Deal Created (if qualified)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="deal" data-col="Q" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="deal" data-col="Q" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="deal" data-col="Q" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -329,8 +327,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="pipeline">
         <div class="subcat-header"><div class="subcat-name">⚡ Pipeline & Timeline</div><div class="subcat-points" id="pipeline-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">R</span>Timeline Activity Set to "All Time"</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="pipeline" data-col="R" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="pipeline" data-col="R" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">S</span>Correct Pipeline Selected</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="pipeline" data-col="S" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="pipeline" data-col="S" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">R</span>Timeline Activity Set to "All Time"</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="pipeline" data-col="R" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="pipeline" data-col="R" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="pipeline" data-col="R" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">S</span>Correct Pipeline Selected</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="pipeline" data-col="S" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="pipeline" data-col="S" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="pipeline" data-col="S" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -338,9 +336,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="task">
         <div class="subcat-header"><div class="subcat-name">✅ Task</div><div class="subcat-points" id="task-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">T</span>Task Created (for callback/follow-up)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="task" data-col="T" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="task" data-col="T" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">U</span>Task Completed Timely</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="task" data-col="U" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="task" data-col="U" onclick="setAttr(this,false)">✗ No</button></div></div>
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">V</span>Task Type Matches Request</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="task" data-col="V" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="task" data-col="V" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">T</span>Task Created (for callback/follow-up)</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="task" data-col="T" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="task" data-col="T" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="task" data-col="T" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">U</span>Task Completed Timely</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="task" data-col="U" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="task" data-col="U" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="task" data-col="U" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">V</span>Task Type Matches Request</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="task" data-col="V" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="task" data-col="V" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="task" data-col="V" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -348,7 +346,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <div class="subcat-card" data-subcat="timely">
         <div class="subcat-header"><div class="subcat-name">⏱️ Timely Contact</div><div class="subcat-points" id="timely-points">10 / 10</div></div>
         <div class="subcat-body">
-          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">W</span>Timely Contact Maintained</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="timely" data-col="W" onclick="setAttr(this,true)">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="timely" data-col="W" onclick="setAttr(this,false)">✗ No</button></div></div>
+          <div class="attr-row"><div class="attr-name"><span class="attr-col-badge">W</span>Timely Contact Maintained</div><div class="attr-toggle"><button type="button" class="attr-btn yes" data-subcat="timely" data-col="W" onclick="setAttr(this,'Yes')">✓ Yes</button><button type="button" class="attr-btn no" data-subcat="timely" data-col="W" onclick="setAttr(this,'No')">✗ No</button><button type="button" class="attr-btn autofail" data-subcat="timely" data-col="W" onclick="setAttr(this,'Autofail')">⛔ Autofail</button></div></div>
         </div>
       </div>
 
@@ -371,7 +369,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
           <circle class="ring-fg" id="ringFg" cx="35" cy="35" r="29" stroke-dasharray="182.2" stroke-dashoffset="0"/>
         </svg>
       </div>
-      <button type="button" class="btn-autofail" onclick="autofail()">⛔ Autofail — Submit 0 Score</button>
     </div>
     <div class="score-cats-list">
       <div class="score-cat-row" id="sr-call"><span class="scat-name"><span class="scat-dot"></span>Call</span><span class="scat-val">10/10</span></div>
@@ -442,32 +439,59 @@ function getPinnedValue(fieldId){
 
 const subcatErrors={call:false,whatsapp:false,email:false,description:false,leadstage:false,outcome:false,deal:false,pipeline:false,task:false,timely:false};
 const columnValues={};
+let hasAutofail = false;
 
 function triggerSubmit(){document.getElementById('auditForm').dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))}
 
-function setAttr(btn,isYes){
+function setAttr(btn,val){
   const subcat=btn.dataset.subcat,col=btn.dataset.col;
   const row=btn.closest('.attr-row');
-  if(columnValues[col]===isYes){columnValues[col]=null;row.querySelectorAll('.attr-btn').forEach(b=>b.classList.remove('active'));}
-  else{columnValues[col]=isYes;row.querySelectorAll('.attr-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-  updateSubcatError(subcat);updateScores();
+  
+  // Toggle off if same value clicked again
+  if(columnValues[col]===val){
+    columnValues[col]=null;
+    row.querySelectorAll('.attr-btn').forEach(b=>b.classList.remove('active'));
+  } else {
+    columnValues[col]=val;
+    row.querySelectorAll('.attr-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  
+  updateSubcatError(subcat);
+  updateScores();
 }
 
 function updateSubcatError(subcat){
   const c=document.querySelector(`.subcat-card[data-subcat="${subcat}"]`);
   if(!c)return;
-  subcatErrors[subcat]=c.querySelectorAll('.attr-btn.no.active').length>0;
+  // A subcategory has an error if ANY attribute in it is "No" or "Autofail"
+  const buttons = c.querySelectorAll('.attr-btn');
+  let hasError = false;
+  buttons.forEach(btn => {
+    if(btn.classList.contains('active') && (btn.classList.contains('no') || btn.classList.contains('autofail'))){
+      hasError = true;
+    }
+  });
+  subcatErrors[subcat] = hasError;
 }
 
 function updateScores(){
+  // Check if ANY attribute across ALL subcats is set to Autofail
+  hasAutofail = false;
+  Object.values(columnValues).forEach(v => {
+    if(v === 'Autofail') hasAutofail = true;
+  });
+  
   let total=0;
   ['call','whatsapp','email','description','leadstage','outcome','deal','pipeline','task','timely'].forEach(s=>{
-    const pts=subcatErrors[s]?0:10;total+=pts;
+    const pts = (hasAutofail || subcatErrors[s]) ? 0 : 10;
+    total += pts;
     const pe=document.getElementById(`${s}-points`);
-    if(pe){pe.textContent=`${pts} / 10`;pe.className='subcat-points '+(subcatErrors[s]?'error':'ok')}
+    if(pe){pe.textContent=`${pts} / 10`;pe.className='subcat-points '+(pts===0?'error':'ok')}
     const sr=document.getElementById(`sr-${s}`);
-    if(sr){sr.querySelector('.scat-val').textContent=`${pts}/10`;sr.className='score-cat-row '+(subcatErrors[s]?'error':'ok')}
+    if(sr){sr.querySelector('.scat-val').textContent=`${pts}/10`;sr.className='score-cat-row '+(pts===0?'error':'ok')}
   });
+  
   const el=document.getElementById('totalScore');
   el.textContent=total;
   el.style.color=total>=90?'var(--green)':total>=70?'var(--yellow)':'var(--red)';
@@ -488,6 +512,7 @@ function resetForm(){
   Object.keys(columnValues).forEach(k=>delete columnValues[k]);
   document.querySelectorAll('.attr-btn').forEach(b=>b.classList.remove('active'));
   Object.keys(subcatErrors).forEach(k=>subcatErrors[k]=false);
+  hasAutofail = false;
   updateScores();
   showToast('↺ Form reset — pinned fields preserved.','info');
 }
@@ -523,7 +548,7 @@ document.getElementById('auditForm').addEventListener('submit',async function(e)
     showToast('⚠️ Fill all required fields.','error');return;
   }
   ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'].forEach(col=>{
-    const v=columnValues[col];payload[`col_${col}`]=v===true?'Yes':v===false?'No':'';
+    const v=columnValues[col];payload[`col_${col}`]=v||'';
   });
   setSubmitting(true);showToast('Submitting audit to Google Sheet...','info');
   try{
@@ -535,13 +560,6 @@ document.getElementById('auditForm').addEventListener('submit',async function(e)
   }catch(err){showToast('✗ Submission failed.','error');}
   finally{setSubmitting(false);}
 });
-
-function autofail(){
-  if(!confirm('⛔ AUTOFAIL: This will set the total score to 0 and submit. Required fields must still be filled in. Continue?')) return;
-  ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'].forEach(col=>{columnValues[col]=false;});
-  Object.keys(subcatErrors).forEach(k=>subcatErrors[k]=true);
-  updateScores();
-}
 
 updateScores();
 </script>
