@@ -30,7 +30,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:48px 48px;opacity:0.3}
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 50% 0%,var(--accent-glow),transparent 70%)}
 
-/* Header / Topbar */
+/* Topbar */
 .topbar{position:sticky;top:0;z-index:200;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(0,0,0,0.4)}
 .topbar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
@@ -102,6 +102,22 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .field select:focus,.field input:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .field textarea{min-height:80px;resize:vertical}
 .fields-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* PIN SYSTEM */
+.field-with-pin{display:flex;flex-direction:column;gap:6px;position:relative}
+.field-label-row{display:flex;align-items:center;justify-content:space-between}
+.field-label-row label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
+.pin-btn{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text3);font-size:9px;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;text-transform:uppercase;flex-shrink:0;font-family:'Inter',sans-serif}
+.pin-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pin-btn.pinned{border-color:var(--yellow);color:var(--yellow);background:rgba(245,158,11,0.12);box-shadow:0 0 8px rgba(245,158,11,0.2)}
+.pin-icon{font-size:10px}
+.pinned-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--yellow);background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:2px 8px;border-radius:12px;margin-left:6px;letter-spacing:0.06em}
+.field-with-pin select,.field-with-pin input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s,box-shadow 0.2s,opacity 0.2s;width:100%}
+.field-with-pin select:focus,.field-with-pin input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.field-with-pin.is-pinned select,.field-with-pin.is-pinned input{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.05);cursor:default}
+.pinned-val-display{font-size:12px;color:var(--yellow);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-sm);padding:9px 14px;font-weight:600;display:none}
+.field-with-pin.is-pinned .pinned-val-display{display:block}
+.field-with-pin.is-pinned select,.field-with-pin.is-pinned input{display:none}
 
 /* Attribute Cards */
 .attribute{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:border-color 0.2s,opacity 0.2s}
@@ -198,7 +214,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="main-col">
     <div class="page-header">
       <div class="page-title">⬡ Migration Quality Audit</div>
-      <div class="page-sub">Click ❌ for partial deduction or 0️⃣ for autofail. Toggle Not Applicable for attributes that don't apply.</div>
+      <div class="page-sub">Click ❌ for partial deduction or 0️⃣ for autofail. Toggle Not Applicable for attributes that don\'t apply. 📌 Pin fields to keep values across bulk audits.</div>
     </div>
 
     <!-- Case Information Section -->
@@ -215,22 +231,40 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       </div>
       <div class="section-body">
         <div class="fields-row">
-          <div class="field">
-            <label>Consultant Name <span class="req">*</span></label>
+          <!-- CONSULTANT (pinnable) -->
+          <div class="field-with-pin" id="pin-wrap-consultant">
+            <div class="field-label-row">
+              <label>Consultant Name <span class="req">*</span><span class="pinned-badge" id="pin-badge-consultant" style="display:none">📌 PINNED</span></label>
+              <button type="button" class="pin-btn" id="pin-btn-consultant" onclick="togglePin('consultant')"><span class="pin-icon">📌</span> Pin</button>
+            </div>
             <select id="consultant" required>
               <option value="">— Select Consultant —</option>
             </select>
+            <div class="pinned-val-display" id="pin-display-consultant"></div>
           </div>
-          <div class="field">
-            <label>Auditor Name <span class="req">*</span></label>
+
+          <!-- AUDITOR (pinnable dropdown) -->
+          <div class="field-with-pin" id="pin-wrap-auditor">
+            <div class="field-label-row">
+              <label>Auditor Name <span class="req">*</span><span class="pinned-badge" id="pin-badge-auditor" style="display:none">📌 PINNED</span></label>
+              <button type="button" class="pin-btn" id="pin-btn-auditor" onclick="togglePin('auditor')"><span class="pin-icon">📌</span> Pin</button>
+            </div>
             <select id="auditor" required>
               <option value="">— Select Auditor —</option>
+              <option>Misbah</option>
+              <option>Momina</option>
             </select>
+            <div class="pinned-val-display" id="pin-display-auditor"></div>
           </div>
         </div>
+
         <div class="fields-row">
-          <div class="field">
-            <label>Lead Stage <span class="req">*</span></label>
+          <!-- LEAD STAGE (pinnable) -->
+          <div class="field-with-pin" id="pin-wrap-leadStage">
+            <div class="field-label-row">
+              <label>Lead Stage <span class="req">*</span><span class="pinned-badge" id="pin-badge-leadStage" style="display:none">📌 PINNED</span></label>
+              <button type="button" class="pin-btn" id="pin-btn-leadStage" onclick="togglePin('leadStage')"><span class="pin-icon">📌</span> Pin</button>
+            </div>
             <select id="leadStage" required>
               <option value="">— Select Lead Stage —</option>
               <option>No Answer</option>
@@ -239,7 +273,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
               <option>Qualified AUS</option>
               <option>USA NIW</option>
               <option>Germany Opportunity Card</option>
-              <option>They Didn't Fill</option>
+              <option>They Didn\'t Fill</option>
               <option>Wrong Number</option>
               <option>Ineligible</option>
               <option>Switched Off</option>
@@ -250,21 +284,18 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
               <option>Started with competitor</option>
               <option>Blank</option>
             </select>
+            <div class="pinned-val-display" id="pin-display-leadStage"></div>
           </div>
-          <div class="field">
-            <label>Audit Date</label>
-            <input type="date" id="auditDate">
-          </div>
-        </div>
-        <div class="fields-row">
+
           <div class="field">
             <label>Case Link (HubSpot URL) <span class="req">*</span></label>
             <input type="url" id="caseLink" placeholder="https://app.hubspot.com/..." required/>
           </div>
-          <div class="field">
-            <label>Comments / Observations</label>
-            <textarea id="comments" placeholder="Optional notes..."></textarea>
-          </div>
+        </div>
+
+        <div class="field">
+          <label>Comments / Observations</label>
+          <textarea id="comments" placeholder="Optional notes..."></textarea>
         </div>
       </div>
     </div>
@@ -348,8 +379,6 @@ const CONSULTANTS = [
   { name: 'Hamza Mughal',            email: 'hamzaazeemi@hofmigration.com' }
 ];
 
-const AUDITORS = ['Misbah', 'Momina'];
-
 const ATTRIBUTES = [
   { id: 'call', letter: 'A', name: 'Call Error', icon: '📞', weight: 17,
     desc: 'Call logged in HubSpot with proper description',
@@ -384,6 +413,13 @@ ATTRIBUTES.forEach(attr => {
   attr.errors.forEach(e => state[attr.id].marks[e] = null);
 });
 
+// PIN STATE
+const pins = {
+  consultant: { pinned: false, value: '' },
+  leadStage: { pinned: false, value: '' },
+  auditor: { pinned: false, value: '' }
+};
+
 let isDark = false;
 
 // ================== THEME TOGGLE ==================
@@ -394,6 +430,42 @@ function toggleTheme() {
   document.getElementById('themeLabel').textContent = isDark ? 'Light Mode' : 'Dark Mode';
 }
 
+// ================== PIN SYSTEM ==================
+function togglePin(fieldId) {
+  const el = document.getElementById(fieldId);
+  const wrap = document.getElementById('pin-wrap-' + fieldId);
+  const btn = document.getElementById('pin-btn-' + fieldId);
+  const badge = document.getElementById('pin-badge-' + fieldId);
+  const display = document.getElementById('pin-display-' + fieldId);
+  const p = pins[fieldId];
+
+  if (!p.pinned) {
+    const val = el.value;
+    if (!val) { showToast('⚠️ Select a value before pinning.', 'error'); return; }
+    p.value = val; p.pinned = true;
+    display.textContent = val;
+    wrap.classList.add('is-pinned');
+    btn.classList.add('pinned');
+    btn.innerHTML = '<span class="pin-icon">📌</span> Unpin';
+    badge.style.display = 'inline-flex';
+    showToast('📌 ' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1) + ' pinned: ' + val, 'info');
+  } else {
+    p.pinned = false; p.value = '';
+    wrap.classList.remove('is-pinned');
+    btn.classList.remove('pinned');
+    btn.innerHTML = '<span class="pin-icon">📌</span> Pin';
+    badge.style.display = 'none';
+    display.textContent = '';
+    showToast('🔓 ' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1) + ' unpinned.', 'info');
+  }
+}
+
+function getPinnedValue(fieldId) {
+  const p = pins[fieldId];
+  if (p.pinned) return p.value;
+  return document.getElementById(fieldId).value;
+}
+
 // ================== INITIALIZATION ==================
 function init() {
   const consultantSel = document.getElementById('consultant');
@@ -402,13 +474,6 @@ function init() {
     opt.value = c.name; opt.textContent = c.name;
     consultantSel.appendChild(opt);
   });
-  const auditorSel = document.getElementById('auditor');
-  AUDITORS.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a; opt.textContent = a;
-    auditorSel.appendChild(opt);
-  });
-  document.getElementById('auditDate').valueAsDate = new Date();
   renderAttributes();
   updateScore();
 }
@@ -571,7 +636,6 @@ function updateScore() {
   document.getElementById('scoreTagline').textContent = sev.tagline;
   document.getElementById('autofailBanner').classList.toggle('active', result.autofail);
 
-  // Update ring
   const ring = document.getElementById('ringFg');
   if (ring) {
     ring.style.strokeDashoffset = 182.2 - (result.score / 100) * 182.2;
@@ -621,12 +685,11 @@ function showStatus(msg, type) {
   el.className = 'submit-status ' + type;
 }
 
-// ================== SUBMIT ==================
+// ================== SUBMIT (GET method — reliable for Apps Script) ==================
 async function submitAudit() {
-  const consultant = document.getElementById('consultant').value;
-  const auditor = document.getElementById('auditor').value;
-  const leadStage = document.getElementById('leadStage').value;
-  const auditDate = document.getElementById('auditDate').value;
+  const consultant = getPinnedValue('consultant');
+  const auditor = getPinnedValue('auditor');
+  const leadStage = getPinnedValue('leadStage');
   const caseLink = document.getElementById('caseLink').value;
   const comments = document.getElementById('comments').value;
 
@@ -662,8 +725,11 @@ async function submitAudit() {
     return `${a.name}|${status}|${earned}|${max}`;
   }).join(';');
 
+  // Build payload
   const payload = {
-    consultant, consultantEmail, auditDate, leadStage,
+    consultant, consultantEmail,
+    auditDate: new Date().toLocaleDateString('en-GB'),
+    leadStage,
     callError: attributeValues.call,
     whatsappError: attributeValues.whatsapp,
     emailError: attributeValues.email,
@@ -680,26 +746,37 @@ async function submitAudit() {
     breakdownDetails: breakdownDetails
   };
 
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.trim() === '') {
-    showStatus('⚠ Apps Script URL not configured. Check the form code.', 'error');
-    console.log('Payload (would be sent):', payload);
-    return;
-  }
+  // Build URL with query parameters (GET method — avoids all CORS/redirect issues)
+  const params = new URLSearchParams();
+  Object.keys(payload).forEach(k => {
+    if (payload[k] !== null && payload[k] !== undefined) {
+      params.append(k, payload[k]);
+    }
+  });
 
   showStatus('⏳ Submitting...', 'loading');
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('topbarSubmitBtn').disabled = true;
 
   try {
-    const formData = new FormData();
-    Object.keys(payload).forEach(k => formData.append(k, payload[k]));
-    await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
-    showStatus('✓ Audit submitted successfully!', 'success');
-    showToast('✓ Audit submitted successfully!', 'success');
-    setTimeout(() => resetForm(), 2000);
+    const response = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
+      method: 'GET'
+    });
+
+    const resultData = await response.json();
+
+    if (resultData.status === 'success') {
+      showStatus('✓ Audit submitted successfully!', 'success');
+      showToast('✓ Audit submitted successfully!', 'success');
+      setTimeout(() => resetForm(), 2000);
+    } else {
+      showStatus('✗ Server error: ' + resultData.message, 'error');
+      showToast('✗ Server error: ' + resultData.message, 'error');
+    }
   } catch (err) {
     showStatus('✗ Submission failed: ' + err.message, 'error');
     showToast('✗ Submission failed: ' + err.message, 'error');
+    console.error('Full error:', err);
   } finally {
     document.getElementById('submitBtn').disabled = false;
     document.getElementById('topbarSubmitBtn').disabled = false;
@@ -707,20 +784,25 @@ async function submitAudit() {
 }
 
 function resetForm() {
-  document.getElementById('consultant').value = '';
-  document.getElementById('auditor').value = '';
-  document.getElementById('leadStage').value = '';
-  document.getElementById('auditDate').valueAsDate = new Date();
+  // Only reset unpinned fields
+  ['consultant', 'leadStage', 'auditor'].forEach(fid => {
+    if (!pins[fid].pinned) {
+      document.getElementById(fid).value = '';
+    }
+  });
   document.getElementById('caseLink').value = '';
   document.getElementById('comments').value = '';
+
+  // Reset all attributes
   ATTRIBUTES.forEach(a => {
     state[a.id] = { applicable: true, marks: {} };
     a.errors.forEach(e => state[a.id].marks[e] = null);
   });
+
   renderAttributes();
   updateScore();
   document.getElementById('submitStatus').className = 'submit-status';
-  showToast('↺ Form reset.', 'info');
+  showToast('↺ Form reset — pinned fields preserved.', 'info');
 }
 
 init();
