@@ -243,17 +243,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
             <div class="pinned-val-display" id="pin-display-consultant"></div>
           </div>
 
-          <!-- AUDITOR (pinnable dropdown) -->
+          <!-- AUDITOR (pinnable free text) -->
           <div class="field-with-pin" id="pin-wrap-auditor">
             <div class="field-label-row">
               <label>Auditor Name <span class="req">*</span><span class="pinned-badge" id="pin-badge-auditor" style="display:none">📌 PINNED</span></label>
               <button type="button" class="pin-btn" id="pin-btn-auditor" onclick="togglePin('auditor')"><span class="pin-icon">📌</span> Pin</button>
             </div>
-            <select id="auditor" required>
-              <option value="">— Select Auditor —</option>
-              <option>Misbah</option>
-              <option>Momina</option>
-            </select>
+            <input type="text" id="auditor" placeholder="Enter your name" required/>
             <div class="pinned-val-display" id="pin-display-auditor"></div>
           </div>
         </div>
@@ -441,7 +437,7 @@ function togglePin(fieldId) {
 
   if (!p.pinned) {
     const val = el.value;
-    if (!val) { showToast('⚠️ Select a value before pinning.', 'error'); return; }
+    if (!val || val.trim() === '') { showToast('⚠️ Enter a value before pinning.', 'error'); return; }
     p.value = val; p.pinned = true;
     display.textContent = val;
     wrap.classList.add('is-pinned');
