@@ -7,237 +7,235 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg-deep: #060912;
-    --bg-mid: #0d1322;
-    --bg-card: #131b30;
-    --bg-elev: #1a2440;
+    --bg: #0b0f1a;
+    --bg-card: #131a2b;
+    --bg-elev: #1a2238;
+    --bg-input: #0f1525;
     --border: #243049;
     --border-strong: #334766;
-    --text: #e8edf7;
+    --text: #e4e9f2;
     --text-dim: #8b9bb4;
     --text-faint: #5a6781;
     --accent: #4f8cff;
-    --accent-glow: rgba(79, 140, 255, 0.4);
+    --accent-2: #2563eb;
     --green: #10b981;
     --green-bg: rgba(16, 185, 129, 0.12);
     --amber: #f59e0b;
     --amber-bg: rgba(245, 158, 11, 0.12);
     --red: #ef4444;
     --red-bg: rgba(239, 68, 68, 0.12);
-    --shadow-3d-out: 0 4px 0 #0a1024, 0 6px 16px rgba(0,0,0,0.4);
-    --shadow-3d-in: inset 0 2px 4px rgba(0,0,0,0.6), inset 0 -1px 0 rgba(255,255,255,0.05);
+    --shadow-3d: 0 4px 0 #060912, 0 6px 14px rgba(0,0,0,0.4);
+    --shadow-3d-pressed: inset 0 2px 4px rgba(0,0,0,0.6);
   }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-    background:
-      radial-gradient(ellipse at top left, rgba(79, 140, 255, 0.08), transparent 50%),
-      radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.05), transparent 50%),
-      var(--bg-deep);
+    background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 20px;
+    padding: 18px;
     line-height: 1.5;
+    font-size: 14px;
   }
 
+  /* Header */
   .header {
     max-width: 1400px;
-    margin: 0 auto 20px;
+    margin: 0 auto 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 28px;
-    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-mid) 100%);
-    border-radius: 16px;
+    padding: 16px 24px;
+    background: var(--bg-card);
+    border-radius: 14px;
     border: 1px solid var(--border);
-    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
   }
-  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
   .logo {
-    width: 42px; height: 42px;
-    background: linear-gradient(135deg, var(--accent), #2563eb);
-    border-radius: 12px;
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; font-weight: bold;
-    box-shadow: 0 4px 20px var(--accent-glow);
+    font-size: 18px; font-weight: bold;
   }
-  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-  .header-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-  .header-right { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .header-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.02em; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
   .badge {
-    padding: 7px 13px; border-radius: 8px;
+    padding: 6px 11px; border-radius: 7px;
     background: rgba(79, 140, 255, 0.12); color: var(--accent);
     border: 1px solid rgba(79, 140, 255, 0.25);
     font-weight: 600; font-size: 11px;
-    letter-spacing: 0.02em;
   }
   .live-dot {
     display: inline-block; width: 7px; height: 7px;
     background: var(--green); border-radius: 50%;
     margin-right: 6px; animation: pulse 2s infinite;
-    box-shadow: 0 0 8px var(--green);
   }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+  .top-submit {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white; border: none;
+    padding: 9px 16px; border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+  }
+  .top-submit:hover { opacity: 0.9; }
+
+  /* Layout */
   .container {
     max-width: 1400px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 20px;
+    grid-template-columns: 320px 1fr;
+    gap: 18px;
   }
 
+  /* ===== SCORE PANEL (LEFT) ===== */
   .score-panel {
-    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 26px;
+    border-radius: 14px;
+    padding: 22px;
     height: fit-content;
     position: sticky;
-    top: 20px;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    top: 18px;
   }
   .score-display {
     text-align: center;
-    padding: 14px 0 22px;
+    padding: 10px 0 18px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
   .score-value {
-    font-size: 72px; font-weight: 800;
-    background: linear-gradient(135deg, var(--green), #059669);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 64px; font-weight: 800;
+    color: var(--green);
     line-height: 1;
     letter-spacing: -0.03em;
+    transition: color 0.2s;
   }
-  .score-value.warning { background: linear-gradient(135deg, var(--amber), #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .score-value.danger { background: linear-gradient(135deg, var(--red), #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .score-max { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+  .score-value.warning { color: var(--amber); }
+  .score-value.danger { color: var(--red); }
+  .score-max { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
   .score-band {
-    margin-top: 14px;
-    padding: 7px 16px;
+    margin-top: 12px;
+    padding: 6px 14px;
     background: var(--green-bg);
     color: var(--green);
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     display: inline-block;
     border: 1px solid rgba(16, 185, 129, 0.25);
   }
   .score-band.warning { background: var(--amber-bg); color: var(--amber); border-color: rgba(245, 158, 11, 0.25); }
   .score-band.danger { background: var(--red-bg); color: var(--red); border-color: rgba(239, 68, 68, 0.25); }
 
-  .breakdown-title {
+  .score-tagline {
+    text-align: center;
+    margin-top: 10px;
     font-size: 11px;
     color: var(--text-dim);
-    margin-bottom: 12px;
+  }
+
+  .breakdown-title {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
   .breakdown-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 9px 0;
-    font-size: 13px;
+    padding: 7px 0;
+    font-size: 12px;
     border-bottom: 1px solid rgba(36, 48, 73, 0.4);
   }
   .breakdown-item:last-child { border-bottom: none; }
-  .breakdown-item.na { opacity: 0.35; }
+  .breakdown-item.na { opacity: 0.4; }
   .breakdown-item.failed { color: var(--red); }
-  .breakdown-item .label { display: flex; align-items: center; gap: 8px; }
   .breakdown-item .points {
     font-weight: 600;
     font-family: 'SF Mono', Consolas, monospace;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .autofail-banner {
-    margin-top: 16px;
-    padding: 14px;
+    margin-top: 14px;
+    padding: 11px;
     background: var(--red-bg);
     border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 10px;
+    border-radius: 8px;
     color: var(--red);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     text-align: center;
     display: none;
-    letter-spacing: 0.03em;
   }
-  .autofail-banner.active { display: block; animation: shake 0.4s; }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    75% { transform: translateX(3px); }
-  }
+  .autofail-banner.active { display: block; }
 
   .submit-btn {
     width: 100%;
-    margin-top: 16px;
-    padding: 15px;
-    background: linear-gradient(135deg, var(--accent), #2563eb);
+    margin-top: 14px;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 14px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.02em;
     cursor: pointer;
-    box-shadow: 0 4px 0 #1e40af, 0 6px 20px var(--accent-glow);
-    transition: transform 0.1s, box-shadow 0.1s;
+    transition: transform 0.1s;
   }
-  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 #1e40af, 0 8px 24px var(--accent-glow); }
-  .submit-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e40af, 0 3px 10px var(--accent-glow); }
-  .submit-btn:disabled { background: #334155; cursor: not-allowed; box-shadow: none; transform: none; }
-
+  .submit-btn:hover { transform: translateY(-1px); }
+  .submit-btn:disabled { background: #334155; cursor: not-allowed; transform: none; }
   .reset-btn {
     width: 100%;
     margin-top: 8px;
-    padding: 11px;
+    padding: 10px;
     background: transparent;
     color: var(--text-dim);
     border: 1px solid var(--border);
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
-    transition: all 0.15s;
   }
   .reset-btn:hover { border-color: var(--text-dim); color: var(--text); }
 
+  /* ===== FORM PANEL (RIGHT) ===== */
   .form-panel {
-    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    border-radius: 14px;
+    padding: 28px;
   }
   .form-title {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 800;
     margin-bottom: 6px;
     letter-spacing: -0.02em;
   }
   .form-title em { color: var(--accent); font-style: normal; }
-  .form-subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+  .form-subtitle { font-size: 12px; color: var(--text-dim); margin-bottom: 22px; }
 
   .section-title {
     font-size: 11px;
     font-weight: 700;
     color: var(--accent);
-    margin: 26px 0 14px;
-    display: flex; align-items: center; gap: 8px;
+    margin: 22px 0 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
   .section-title:first-of-type { margin-top: 0; }
 
-  .case-info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
+  .case-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
   .field.full { grid-column: 1 / -1; }
   .field label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-dim);
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -245,80 +243,89 @@
   }
   .field label .required { color: var(--red); }
   .field input, .field select, .field textarea {
-    padding: 11px 13px;
-    background: var(--bg-deep);
+    padding: 10px 12px;
+    background: var(--bg-input);
     border: 1px solid var(--border);
-    border-radius: 9px;
+    border-radius: 8px;
     color: var(--text);
     font-size: 13px;
     font-family: inherit;
-    transition: border-color 0.15s;
   }
   .field input:focus, .field select:focus, .field textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
   }
-  .field textarea { resize: vertical; min-height: 80px; }
+  .field textarea { resize: vertical; min-height: 70px; }
 
+  /* ===== ATTRIBUTE CARD (matches Global Team form) ===== */
   .attribute {
     background: var(--bg-elev);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin-bottom: 14px;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
     transition: border-color 0.2s, opacity 0.2s;
-    position: relative;
   }
   .attribute.has-error { border-color: rgba(245, 158, 11, 0.4); }
-  .attribute.has-autofail { border-color: var(--red); background: rgba(239, 68, 68, 0.04); }
+  .attribute.has-autofail { border-color: var(--red); }
   .attribute.na-state { opacity: 0.45; }
 
   .attr-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
     gap: 12px;
+    margin-bottom: 12px;
   }
-  .attr-info { flex: 1; }
-  .attr-name {
-    font-size: 15px;
+  .attr-letter {
+    width: 28px; height: 28px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
     font-weight: 700;
-    margin-bottom: 4px;
-    display: flex; align-items: center; gap: 8px;
-    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-family: 'SF Mono', Consolas, monospace;
   }
+  .attr-info { flex: 1; min-width: 0; }
+  .attr-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .attr-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+
   .attr-points-badge {
     background: rgba(79, 140, 255, 0.15);
-    padding: 3px 9px;
+    padding: 5px 11px;
     border-radius: 6px;
     font-size: 11px;
     font-weight: 700;
     color: var(--accent);
     font-family: 'SF Mono', Consolas, monospace;
+    white-space: nowrap;
   }
-  .attr-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
 
   .applicability-toggle {
     display: flex;
-    background: var(--bg-deep);
+    background: var(--bg-input);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 7px;
     padding: 2px;
-    flex-shrink: 0;
   }
   .applicability-toggle button {
-    padding: 5px 10px;
+    padding: 4px 8px;
     background: transparent;
     border: none;
     color: var(--text-faint);
-    border-radius: 6px;
-    font-size: 10px;
+    border-radius: 5px;
+    font-size: 9px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
   }
   .applicability-toggle button:hover { color: var(--text); }
   .applicability-toggle button.active.applicable {
@@ -330,74 +337,73 @@
     color: var(--text-dim);
   }
 
-  .error-rows { display: flex; flex-direction: column; gap: 8px; }
+  /* ===== ERROR ROWS ===== */
+  .error-rows { display: flex; flex-direction: column; gap: 6px; }
   .error-row {
     display: grid;
     grid-template-columns: 1fr auto auto;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 8px 12px;
-    background: var(--bg-deep);
+    background: var(--bg-input);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 9px;
     transition: border-color 0.15s;
   }
   .error-row.error-mark { border-color: var(--amber); }
   .error-row.autofail-mark { border-color: var(--red); }
-
   .error-label {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text);
     font-weight: 500;
   }
 
+  /* 3D Chip Buttons (kept as you wanted) */
   .chip-btn {
-    width: 42px; height: 32px;
-    border-radius: 8px;
+    width: 40px; height: 30px;
+    border-radius: 7px;
     border: 1px solid var(--border-strong);
     background: linear-gradient(180deg, #1d2845 0%, #131b30 100%);
     color: var(--text-faint);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow-3d-out);
+    box-shadow: var(--shadow-3d);
     transition: all 0.12s ease-out;
     user-select: none;
   }
   .chip-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 5px 0 #0a1024, 0 7px 18px rgba(0,0,0,0.4);
+    box-shadow: 0 5px 0 #060912, 0 7px 16px rgba(0,0,0,0.4);
     color: var(--text);
   }
   .chip-btn:active {
     transform: translateY(2px);
-    box-shadow: 0 2px 0 #0a1024, 0 3px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 0 #060912;
   }
   .chip-btn.error-chip.active {
     background: linear-gradient(180deg, var(--amber) 0%, #c97500 100%);
     border-color: #d97706;
     color: white;
-    box-shadow: var(--shadow-3d-in);
+    box-shadow: var(--shadow-3d-pressed);
     transform: translateY(2px);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   }
   .chip-btn.autofail-chip.active {
     background: linear-gradient(180deg, var(--red) 0%, #b91c1c 100%);
     border-color: #dc2626;
     color: white;
-    box-shadow: var(--shadow-3d-in), 0 0 16px rgba(239, 68, 68, 0.4);
+    box-shadow: var(--shadow-3d-pressed);
     transform: translateY(2px);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   }
   .chip-btn.error-chip:hover:not(.active) { color: var(--amber); border-color: var(--amber); }
   .chip-btn.autofail-chip:hover:not(.active) { color: var(--red); border-color: var(--red); }
 
   .submit-status {
-    margin-top: 14px;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 12px;
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 11px;
     text-align: center;
     display: none;
     font-weight: 600;
@@ -410,6 +416,9 @@
     .container { grid-template-columns: 1fr; }
     .score-panel { position: static; }
     .case-info { grid-template-columns: 1fr; }
+    .attr-header { grid-template-columns: auto 1fr; gap: 10px; }
+    .attr-header .attr-points-badge,
+    .attr-header .applicability-toggle { grid-column: 1 / -1; }
   }
 </style>
 </head>
@@ -420,22 +429,25 @@
     <div class="logo">⬡</div>
     <div>
       <h1>HOF · Compliance Audit</h1>
-      <div class="header-sub">Migration Team — CRM Quality Control</div>
+      <div class="header-sub">CRM Quality Control</div>
     </div>
   </div>
   <div class="header-right">
     <span class="badge">🌐 MIGRATION TEAM</span>
     <span class="badge"><span class="live-dot"></span>LIVE</span>
+    <button class="top-submit" onclick="submitAudit()">⬆ Submit Audit</button>
   </div>
 </div>
 
 <div class="container">
 
+  <!-- LEFT PANEL -->
   <div class="score-panel">
     <div class="score-display">
       <div class="score-value" id="scoreValue">100</div>
       <div class="score-max">/ 100</div>
-      <div class="score-band" id="scoreBand">🟢 EXCELLENT</div>
+      <div class="score-band" id="scoreBand">PERFECT</div>
+      <div class="score-tagline" id="scoreTagline">All criteria passing</div>
     </div>
 
     <div class="breakdown-title">Score Breakdown</div>
@@ -450,9 +462,10 @@
     <div class="submit-status" id="submitStatus"></div>
   </div>
 
+  <!-- RIGHT PANEL -->
   <div class="form-panel">
     <h2 class="form-title">Migration <em>Quality Audit</em></h2>
-    <div class="form-subtitle">Click ❌ for partial deduction, 0️⃣ for autofail. Toggle Not Applicable on attributes that don't apply to this audit.</div>
+    <div class="form-subtitle">Click ❌ for partial deduction or 0️⃣ for autofail. Toggle Not Applicable for attributes that don't apply.</div>
 
     <div class="section-title">◈ Case Information</div>
     <div class="case-info">
@@ -484,12 +497,12 @@
 
     <div class="section-title">⚖ Audit Attributes</div>
     <div id="attributesContainer"></div>
-
   </div>
 </div>
 
 <script>
-  const APPS_SCRIPT_URL = ''; //https://script.google.com/macros/s/AKfycbze4-QHd1TpOZD2YGc1ptZWkwQusE8WDEmRE6T7OSQYq2OLtKR2o41QWnBDGCBDo-nIhA/exec
+  // ================== CONFIGURATION ==================
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbze4-QHd1TpOZD2YGc1ptZWkwQusE8WDEmRE6T7OSQYq2OLtKR2o41QWnBDGCBDo-nIhA/exec';
 
   const CONSULTANTS = [
     { name: 'Muhammad Bin Atif',       email: 'muhammadbinatif@hofmigration.com' },
@@ -518,38 +531,40 @@
   const AUDITORS = ['Misbah', 'Momina'];
 
   const ATTRIBUTES = [
-    { id: 'call', name: 'Call Error', icon: '📞', weight: 17,
+    { id: 'call', letter: 'A', name: 'Call Error', icon: '📞', weight: 17,
       desc: 'Call logged in HubSpot with proper description',
       errors: ['Call Logged,', 'Call Discription'] },
-    { id: 'whatsapp', name: 'Whatsapp Error', icon: '💬', weight: 6,
+    { id: 'whatsapp', letter: 'B', name: 'Whatsapp Error', icon: '💬', weight: 6,
       desc: 'WhatsApp used and logged when required',
       errors: ['WhatsApp Used (when required)', 'WhatsApp Logged in HubSpot', 'WhatsApp Note (if unavailable)'] },
-    { id: 'email', name: 'Email Error', icon: '✉️', weight: 6,
+    { id: 'email', letter: 'C', name: 'Email Error', icon: '✉️', weight: 6,
       desc: 'Email sent professionally with proper signature',
       errors: ['Sent (when required)', 'Professional (no AI/emojis)', 'Company Signature Used'] },
-    { id: 'documentation', name: 'Documentation Error', icon: '📝', weight: 17,
+    { id: 'documentation', letter: 'D', name: 'Documentation Error', icon: '📝', weight: 17,
       desc: 'Description, properties, and outcome recorded',
       errors: ['Description / Call Notes added', 'All Required Properties Completed', 'Outcome'] },
-    { id: 'leadStage', name: 'Lead Stage Error', icon: '🏷️', weight: 21,
+    { id: 'leadStage', letter: 'E', name: 'Lead Stage Error', icon: '🏷️', weight: 21,
       desc: 'Lead stage updated correctly per SOP',
       errors: ['Lead Stage Updated After Contact', 'Qualified Stage Marked', 'Correct Lead Stage Used (per SOP)'] },
-    { id: 'deal', name: 'Deal Error', icon: '⚡', weight: 14,
+    { id: 'deal', letter: 'F', name: 'Deal Error', icon: '⚡', weight: 14,
       desc: 'Deal created in correct pipeline if qualified',
       errors: ['Deal Created (if qualified)', 'Correct Pipeline Selected'] },
-    { id: 'task', name: 'Task Error', icon: '✅', weight: 8,
+    { id: 'task', letter: 'G', name: 'Task Error', icon: '✅', weight: 8,
       desc: 'Task created, completed timely, type matches request',
       errors: ['Task Created (for callback/follow-up)', 'Task Completed Timely', 'Task Type Matches Request'] },
-    { id: 'followup', name: 'Follow up', icon: '🔔', weight: 11,
+    { id: 'followup', letter: 'H', name: 'Follow up', icon: '🔔', weight: 11,
       desc: 'Timely contact made with the lead',
       errors: ['No Timely Contact'] }
   ];
 
+  // ================== STATE ==================
   const state = {};
   ATTRIBUTES.forEach(attr => {
     state[attr.id] = { applicable: true, marks: {} };
     attr.errors.forEach(e => state[attr.id].marks[e] = null);
   });
 
+  // ================== INITIALIZATION ==================
   function init() {
     const consultantSel = document.getElementById('consultant');
     CONSULTANTS.forEach(c => {
@@ -590,15 +605,14 @@
 
       div.innerHTML = `
         <div class="attr-header">
+          <div class="attr-letter">${attr.letter}</div>
           <div class="attr-info">
-            <div class="attr-name">
-              ${attr.icon} ${attr.name}
-              <span class="attr-points-badge" id="points-${attr.id}">${attr.weight} pts</span>
-            </div>
+            <div class="attr-name">${attr.icon} ${attr.name}</div>
             <div class="attr-desc">${attr.desc}</div>
           </div>
+          <div class="attr-points-badge" id="points-${attr.id}">${attr.weight} / ${attr.weight}</div>
           <div class="applicability-toggle">
-            <button class="active applicable" data-attr="${attr.id}" data-app="true">✓ APPLICABLE</button>
+            <button class="active applicable" data-attr="${attr.id}" data-app="true">✓ APP</button>
             <button data-attr="${attr.id}" data-app="false">— N/A</button>
           </div>
         </div>
@@ -650,12 +664,10 @@
       const row = document.getElementById(`row-${attrId}-${idx}`);
       const errBtn = row.querySelector('.error-chip');
       const afBtn = row.querySelector('.autofail-chip');
-
       errBtn.classList.toggle('active', mark === 'error');
       afBtn.classList.toggle('active', mark === 'autofail');
       row.classList.toggle('error-mark', mark === 'error');
       row.classList.toggle('autofail-mark', mark === 'autofail');
-
       if (mark === 'error') hasError = true;
       if (mark === 'autofail') hasAutofail = true;
     });
@@ -673,12 +685,13 @@
   }
 
   function calculateScore() {
-    const hasAutofail = ATTRIBUTES.some(a => getAttributeStatus(a.id) === 'autofail');
-    if (hasAutofail) return { score: 0, autofail: true, reason: 'Autofail marker triggered on critical attribute' };
-
+    if (ATTRIBUTES.some(a => getAttributeStatus(a.id) === 'autofail')) {
+      return { score: 0, autofail: true, reason: 'Autofail marker triggered on critical attribute' };
+    }
     const erroredAttrs = ATTRIBUTES.filter(a => getAttributeStatus(a.id) === 'error');
-    if (erroredAttrs.length >= 4) return { score: 0, autofail: true, reason: `${erroredAttrs.length} attributes have errors (4+ = autofail)` };
-
+    if (erroredAttrs.length >= 4) {
+      return { score: 0, autofail: true, reason: `${erroredAttrs.length} attributes have errors (4+ = autofail)` };
+    }
     const applicable = ATTRIBUTES.filter(a => state[a.id].applicable);
     const totalApplicableWeight = applicable.reduce((sum, a) => sum + a.weight, 0);
     if (totalApplicableWeight === 0) return { score: 0, autofail: false, reason: 'No applicable attributes' };
@@ -687,7 +700,6 @@
     applicable.forEach(a => {
       if (getAttributeStatus(a.id) === 'pass') earned += (a.weight / totalApplicableWeight) * 100;
     });
-
     return { score: Math.round(earned * 10) / 10, autofail: false, reason: '' };
   }
 
@@ -710,23 +722,22 @@
   }
 
   function getSeverity(score, autofail) {
-    if (autofail || score === 0) return { label: '🚨 AUTO-FAIL', cls: 'danger' };
-    if (score >= 90) return { label: '🟢 EXCELLENT', cls: '' };
-    if (score >= 75) return { label: '🔵 GOOD', cls: '' };
-    if (score >= 60) return { label: '🟡 NEEDS IMPROVEMENT', cls: 'warning' };
-    return { label: '🔴 CRITICAL', cls: 'danger' };
+    if (autofail || score === 0) return { label: 'AUTO-FAIL', tagline: 'Critical issue detected', cls: 'danger' };
+    if (score >= 90) return { label: 'EXCELLENT', tagline: 'All criteria passing', cls: '' };
+    if (score >= 75) return { label: 'GOOD', tagline: 'Minor issues identified', cls: '' };
+    if (score >= 60) return { label: 'NEEDS IMPROVEMENT', tagline: 'Multiple issues found', cls: 'warning' };
+    return { label: 'CRITICAL', tagline: 'Significant gaps in compliance', cls: 'danger' };
   }
 
   function updateScore() {
     const result = calculateScore();
     const sev = getSeverity(result.score, result.autofail);
 
-    const scoreEl = document.getElementById('scoreValue');
-    scoreEl.textContent = result.score;
-    scoreEl.className = 'score-value ' + sev.cls;
-    const bandEl = document.getElementById('scoreBand');
-    bandEl.textContent = sev.label;
-    bandEl.className = 'score-band ' + sev.cls;
+    document.getElementById('scoreValue').textContent = result.score;
+    document.getElementById('scoreValue').className = 'score-value ' + sev.cls;
+    document.getElementById('scoreBand').textContent = sev.label;
+    document.getElementById('scoreBand').className = 'score-band ' + sev.cls;
+    document.getElementById('scoreTagline').textContent = sev.tagline;
     document.getElementById('autofailBanner').classList.toggle('active', result.autofail);
 
     const breakdownEl = document.getElementById('breakdown');
@@ -742,7 +753,7 @@
         if (status === 'pass') pts = max;
         else { pts = 0; cls = 'failed'; }
       }
-      return `<div class="breakdown-item ${cls}"><div class="label">${a.icon} ${a.name}</div><div class="points">${pts}/${max}</div></div>`;
+      return `<div class="breakdown-item ${cls}"><div>${a.name}</div><div class="points">${pts}/${max}</div></div>`;
     }).join('');
 
     ATTRIBUTES.forEach(a => {
@@ -751,10 +762,11 @@
       if (status === 'na') { el.textContent = 'N/A'; return; }
       const max = Math.round((a.weight / totalApplicableWeight) * 100 * 10) / 10;
       const earned = (status === 'pass') ? max : 0;
-      el.textContent = `${earned} / ${max} pts`;
+      el.textContent = `${earned} / ${max}`;
     });
   }
 
+  // ================== SUBMIT ==================
   async function submitAudit() {
     const consultant = document.getElementById('consultant').value;
     const auditor = document.getElementById('auditor').value;
@@ -782,6 +794,16 @@
     const consultantObj = CONSULTANTS.find(c => c.name === consultant);
     const consultantEmail = consultantObj ? consultantObj.email : '';
 
+    // Score breakdown details for email
+    const breakdownDetails = ATTRIBUTES.map(a => {
+      const status = getAttributeStatus(a.id);
+      const applicable = ATTRIBUTES.filter(x => state[x.id].applicable);
+      const totalAppWeight = applicable.reduce((s, x) => s + x.weight, 0) || 1;
+      const max = state[a.id].applicable ? Math.round((a.weight / totalAppWeight) * 100 * 10) / 10 : 'N/A';
+      const earned = (status === 'pass') ? max : (status === 'na' ? 'N/A' : 0);
+      return `${a.name}|${status}|${earned}|${max}`;
+    }).join(';');
+
     const payload = {
       consultant, consultantEmail, auditDate,
       callError: attributeValues.call,
@@ -796,10 +818,11 @@
       totalScore: result.score,
       auditor, violationPoints,
       severity: sev.label,
-      autofailReason: result.autofail ? result.reason : ''
+      autofailReason: result.autofail ? result.reason : '',
+      breakdownDetails: breakdownDetails
     };
 
-    if (!APPS_SCRIPT_URL) {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.trim() === '') {
       showStatus('⚠ Apps Script URL not configured. Check the form code.', 'error');
       console.log('Payload (would be sent):', payload);
       return;
