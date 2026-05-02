@@ -3,483 +3,846 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOF Compliance Audit</title>
+<title>HOF Compliance Audit — Migration Team</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
-body{background:#0b0f1e;color:#e2e8f8;min-height:100vh;padding:20px}
-.container{max-width:900px;margin:0 auto}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-h1{font-size:22px;font-weight:700;color:#6366f1}
-.score-box{background:#1a2236;border:1px solid #263352;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px}
-.score-num{font-size:48px;font-weight:700;color:#6366f1}
-.score-label{font-size:12px;color:#8b94b8;margin-top:4px}
-.section{background:#111827;border:1px solid #263352;border-radius:12px;margin-bottom:16px;overflow:hidden}
-.section-header{padding:14px 16px;background:#1a2236;border-bottom:1px solid #263352;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
-.section-body{padding:16px;display:flex;flex-direction:column;gap:12px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:11px;font-weight:600;color:#8b94b8;text-transform:uppercase}
-.field input,.field select,.field textarea{background:#1a2236;border:1px solid #263352;color:#e2e8f8;border-radius:8px;padding:10px 14px;font-size:13px;outline:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#6366f1}
-.field textarea{min-height:80px;resize:vertical}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.row2{grid-template-columns:1fr}}
-.attr-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e2a44}
-.attr-row:last-child{border-bottom:none}
-.attr-name{font-size:13px;color:#e2e8f8;display:flex;align-items:center;gap:8px}
-.attr-col{font-size:9px;font-weight:600;color:#6366f1;background:rgba(99,102,241,0.1);padding:2px 6px;border-radius:4px;border:1px solid #6366f1}
-.attr-btns{display:flex;gap:6px}
-.attr-btn{padding:6px 14px;border-radius:6px;border:1px solid #263352;background:#111827;color:#8b94b8;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s}
-.attr-btn:hover{border-color:#6366f1;color:#6366f1}
-.attr-btn.yes.active{background:rgba(34,197,94,0.2);border-color:#22c55e;color:#22c55e}
-.attr-btn.no.active{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#ef4444}
-.attr-btn.autofail.active{background:rgba(185,28,28,0.3);border-color:#ef4444;color:#fca5a5}
-.submit-btn{width:100%;padding:14px;border-radius:8px;border:none;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:20px}
-.submit-btn:hover{opacity:0.9}
-.toast{position:fixed;bottom:20px;right:20px;padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;transform:translateY(100px);opacity:0;transition:all 0.3s}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.success{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
-.toast.error{background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-deep: #060912;
+    --bg-mid: #0d1322;
+    --bg-card: #131b30;
+    --bg-elev: #1a2440;
+    --border: #243049;
+    --border-strong: #334766;
+    --text: #e8edf7;
+    --text-dim: #8b9bb4;
+    --text-faint: #5a6781;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.4);
+    --green: #10b981;
+    --green-bg: rgba(16, 185, 129, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --red-bg: rgba(239, 68, 68, 0.12);
+    --shadow-3d-out: 0 4px 0 #0a1024, 0 6px 16px rgba(0,0,0,0.4);
+    --shadow-3d-in: inset 0 2px 4px rgba(0,0,0,0.6), inset 0 -1px 0 rgba(255,255,255,0.05);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    background:
+      radial-gradient(ellipse at top left, rgba(79, 140, 255, 0.08), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.05), transparent 50%),
+      var(--bg-deep);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.5;
+  }
+
+  .header {
+    max-width: 1400px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 28px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), #2563eb);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: bold;
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .header-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .badge {
+    padding: 7px 13px; border-radius: 8px;
+    background: rgba(79, 140, 255, 0.12); color: var(--accent);
+    border: 1px solid rgba(79, 140, 255, 0.25);
+    font-weight: 600; font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  .live-dot {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--green); border-radius: 50%;
+    margin-right: 6px; animation: pulse 2s infinite;
+    box-shadow: 0 0 8px var(--green);
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+  }
+
+  .score-panel {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  }
+  .score-display {
+    text-align: center;
+    padding: 14px 0 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .score-value {
+    font-size: 72px; font-weight: 800;
+    background: linear-gradient(135deg, var(--green), #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .score-value.warning { background: linear-gradient(135deg, var(--amber), #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .score-value.danger { background: linear-gradient(135deg, var(--red), #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .score-max { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+  .score-band {
+    margin-top: 14px;
+    padding: 7px 16px;
+    background: var(--green-bg);
+    color: var(--green);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: inline-block;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+  .score-band.warning { background: var(--amber-bg); color: var(--amber); border-color: rgba(245, 158, 11, 0.25); }
+  .score-band.danger { background: var(--red-bg); color: var(--red); border-color: rgba(239, 68, 68, 0.25); }
+
+  .breakdown-title {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .breakdown-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(36, 48, 73, 0.4);
+  }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-item.na { opacity: 0.35; }
+  .breakdown-item.failed { color: var(--red); }
+  .breakdown-item .label { display: flex; align-items: center; gap: 8px; }
+  .breakdown-item .points {
+    font-weight: 600;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+  }
+
+  .autofail-banner {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--red-bg);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    display: none;
+    letter-spacing: 0.03em;
+  }
+  .autofail-banner.active { display: block; animation: shake 0.4s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent), #2563eb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1e40af, 0 6px 20px var(--accent-glow);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 #1e40af, 0 8px 24px var(--accent-glow); }
+  .submit-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e40af, 0 3px 10px var(--accent-glow); }
+  .submit-btn:disabled { background: #334155; cursor: not-allowed; box-shadow: none; transform: none; }
+
+  .reset-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 11px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .form-panel {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-mid) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  }
+  .form-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  .form-title em { color: var(--accent); font-style: normal; }
+  .form-subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 26px 0 14px;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .section-title:first-of-type { margin-top: 0; }
+
+  .case-info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .field label .required { color: var(--red); }
+  .field input, .field select, .field textarea {
+    padding: 11px 13px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .attribute {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s, opacity 0.2s;
+    position: relative;
+  }
+  .attribute.has-error { border-color: rgba(245, 158, 11, 0.4); }
+  .attribute.has-autofail { border-color: var(--red); background: rgba(239, 68, 68, 0.04); }
+  .attribute.na-state { opacity: 0.45; }
+
+  .attr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .attr-info { flex: 1; }
+  .attr-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .attr-points-badge {
+    background: rgba(79, 140, 255, 0.15);
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .attr-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+
+  .applicability-toggle {
+    display: flex;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .applicability-toggle button {
+    padding: 5px 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .applicability-toggle button:hover { color: var(--text); }
+  .applicability-toggle button.active.applicable {
+    background: rgba(79, 140, 255, 0.2);
+    color: var(--accent);
+  }
+  .applicability-toggle button.active.not-applicable {
+    background: rgba(139, 155, 180, 0.15);
+    color: var(--text-dim);
+  }
+
+  .error-rows { display: flex; flex-direction: column; gap: 8px; }
+  .error-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 0.15s;
+  }
+  .error-row.error-mark { border-color: var(--amber); }
+  .error-row.autofail-mark { border-color: var(--red); }
+
+  .error-label {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .chip-btn {
+    width: 42px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: linear-gradient(180deg, #1d2845 0%, #131b30 100%);
+    color: var(--text-faint);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-3d-out);
+    transition: all 0.12s ease-out;
+    user-select: none;
+  }
+  .chip-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 #0a1024, 0 7px 18px rgba(0,0,0,0.4);
+    color: var(--text);
+  }
+  .chip-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #0a1024, 0 3px 8px rgba(0,0,0,0.3);
+  }
+  .chip-btn.error-chip.active {
+    background: linear-gradient(180deg, var(--amber) 0%, #c97500 100%);
+    border-color: #d97706;
+    color: white;
+    box-shadow: var(--shadow-3d-in);
+    transform: translateY(2px);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .chip-btn.autofail-chip.active {
+    background: linear-gradient(180deg, var(--red) 0%, #b91c1c 100%);
+    border-color: #dc2626;
+    color: white;
+    box-shadow: var(--shadow-3d-in), 0 0 16px rgba(239, 68, 68, 0.4);
+    transform: translateY(2px);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .chip-btn.error-chip:hover:not(.active) { color: var(--amber); border-color: var(--amber); }
+  .chip-btn.autofail-chip:hover:not(.active) { color: var(--red); border-color: var(--red); }
+
+  .submit-status {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    text-align: center;
+    display: none;
+    font-weight: 600;
+  }
+  .submit-status.success { display: block; background: var(--green-bg); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+  .submit-status.error { display: block; background: var(--red-bg); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+  .submit-status.loading { display: block; background: rgba(79, 140, 255, 0.12); color: var(--accent); border: 1px solid rgba(79, 140, 255, 0.3); }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+    .score-panel { position: static; }
+    .case-info { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <h1>⬡ HOF Compliance Audit</h1>
-    <div class="score-box">
-      <div class="score-num" id="totalScore">100</div>
-      <div class="score-label">/ 100</div>
+<div class="header">
+  <div class="header-left">
+    <div class="logo">⬡</div>
+    <div>
+      <h1>HOF · Compliance Audit</h1>
+      <div class="header-sub">Migration Team — CRM Quality Control</div>
     </div>
   </div>
-
-  <form id="auditForm">
-    <!-- CASE INFO -->
-    <div class="section">
-      <div class="section-header">◈ Case Information</div>
-      <div class="section-body">
-        <div class="row2">
-          <div class="field">
-            <label>Consultant *</label>
-            <select id="consultant" required>
-              <option value="">Select Consultant</option>
-              <option>Muizza Shahrukh</option>
-              <option>Muhammad Bin Atif</option>
-              <option>Sultan Butt</option>
-              <option>Rabbiya Jillani</option>
-              <option>Muhammad Diean</option>
-              <option>Muhammad Shahzad Fiaz</option>
-              <option>Ayesha Zahid</option>
-              <option>Syed Hussain Ali Haris</option>
-              <option>Ahmad Ali</option>
-              <option>Ali Raza Qureshi</option>
-              <option>Mishal Naseem</option>
-              <option>Hamza Mughal</option>
-              <option>Fahad Butt</option>
-              <option>Atika Zainab</option>
-              <option>Fatima Zahid</option>
-              <option>Tuba</option>
-              <option>Muhammad Hanzla</option>
-              <option>Muhammad Awaad bin Imran</option>
-              <option>Badar Saeed</option>
-              <option>Zahid Muneer</option>
-              <option>Aqsa Fareed</option>
-              <option>Mashal Fatima</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Lead Stage *</label>
-            <select id="leadStage" required>
-              <option value="">Select Stage</option>
-              <option>No Answer</option>
-              <option>Schedule Call Back</option>
-              <option>Qualified CAN</option>
-              <option>Qualified AUS</option>
-              <option>USA NIW</option>
-              <option>Germany Opportunity Card</option>
-              <option>They Didn't Fill</option>
-              <option>Wrong Number</option>
-              <option>Ineligible</option>
-              <option>Switched Off</option>
-              <option>Cannot Dial</option>
-              <option>Outside GCC</option>
-              <option>Sale</option>
-              <option>Already Migrated</option>
-              <option>Started with competitor</option>
-              <option>Blank</option>
-            </select>
-          </div>
-        </div>
-        <div class="row2">
-          <div class="field">
-            <label>Case Link (HubSpot) *</label>
-            <input type="url" id="caseLink" placeholder="https://app.hubspot.com/..." required>
-          </div>
-          <div class="field">
-            <label>Auditor Name *</label>
-            <input type="text" id="auditorName" placeholder="Your name" required>
-          </div>
-        </div>
-        <div class="field">
-          <label>Comments</label>
-          <textarea id="comments" placeholder="Additional notes..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- CALL -->
-    <div class="section">
-      <div class="section-header">📞 Call</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">C</span>Call Made</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'D','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'D','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'D','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WHATSAPP -->
-    <div class="section">
-      <div class="section-header">💬 WhatsApp</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">D</span>WhatsApp Used (when required)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'E','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'E','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'E','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">D</span>WhatsApp Logged in HubSpot</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'F','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'F','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'F','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">D</span>WhatsApp Note (if unavailable)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'G','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'G','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'G','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EMAIL -->
-    <div class="section">
-      <div class="section-header">✉️ Email</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">E</span>Email Sent (when required)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'H','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'H','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'H','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">E</span>Professional Tone (no AI/emojis)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'I','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'I','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'I','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">E</span>Company Signature Used</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'J','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'J','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'J','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DOCUMENTATION -->
-    <div class="section">
-      <div class="section-header">📝 Documentation</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">F</span>Description / Call Notes added</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'K','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'K','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'K','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">F</span>All Required Properties Completed</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'L','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'L','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'L','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LEAD STAGE -->
-    <div class="section">
-      <div class="section-header">🏷️ Lead Stage</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">G</span>Lead Stage Updated After Contact</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'M','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'M','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'M','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">G</span>Qualified Stage Marked (if qualified)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'N','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'N','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'N','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">G</span>Correct Lead Stage Used (per SOP)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'O','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'O','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'O','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DEAL -->
-    <div class="section">
-      <div class="section-header">🤝 Deal</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">H</span>Outcome Recorded</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'P','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'P','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'P','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">H</span>Deal Created (if qualified)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'Q','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'Q','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'Q','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">H</span>Timeline Activity Set to "All Time"</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'R','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'R','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'R','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">H</span>Correct Pipeline Selected</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'S','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'S','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'S','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TASK -->
-    <div class="section">
-      <div class="section-header">✅ Task</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">I</span>Task Created (for callback/follow-up)</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'T','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'T','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'T','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">I</span>Task Completed Timely</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'U','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'U','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'U','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">I</span>Task Type Matches Request</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'V','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'V','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'V','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FOLLOW UP -->
-    <div class="section">
-      <div class="section-header">⏱️ Follow Up</div>
-      <div class="section-body">
-        <div class="attr-row">
-          <div class="attr-name"><span class="attr-col">J</span>Timely Contact Maintained</div>
-          <div class="attr-btns">
-            <button type="button" class="attr-btn yes" onclick="setAttr(this,'W','Yes')">✓ Yes</button>
-            <button type="button" class="attr-btn no" onclick="setAttr(this,'W','No')">✗ No</button>
-            <button type="button" class="attr-btn autofail" onclick="setAttr(this,'W','Autofail')">⛔ Autofail</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="submit-btn" id="submitBtn">⬆ Submit Audit to Sheet</button>
-  </form>
+  <div class="header-right">
+    <span class="badge">🌐 MIGRATION TEAM</span>
+    <span class="badge"><span class="live-dot"></span>LIVE</span>
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="container">
+
+  <div class="score-panel">
+    <div class="score-display">
+      <div class="score-value" id="scoreValue">100</div>
+      <div class="score-max">/ 100</div>
+      <div class="score-band" id="scoreBand">🟢 EXCELLENT</div>
+    </div>
+
+    <div class="breakdown-title">Score Breakdown</div>
+    <div id="breakdown"></div>
+
+    <div class="autofail-banner" id="autofailBanner">
+      ⛔ AUTOFAIL ACTIVE — Score forced to 0
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitAudit()">⬆ Submit to Sheet</button>
+    <button class="reset-btn" onclick="resetForm()">↺ Reset Form</button>
+    <div class="submit-status" id="submitStatus"></div>
+  </div>
+
+  <div class="form-panel">
+    <h2 class="form-title">Migration <em>Quality Audit</em></h2>
+    <div class="form-subtitle">Click ❌ for partial deduction, 0️⃣ for autofail. Toggle Not Applicable on attributes that don't apply to this audit.</div>
+
+    <div class="section-title">◈ Case Information</div>
+    <div class="case-info">
+      <div class="field">
+        <label>Consultant Name <span class="required">*</span></label>
+        <select id="consultant" required>
+          <option value="">— Select Consultant —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Auditor Name <span class="required">*</span></label>
+        <select id="auditor" required>
+          <option value="">— Select Auditor —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Audit Date</label>
+        <input type="date" id="auditDate">
+      </div>
+      <div class="field">
+        <label>Case Link (HubSpot URL)</label>
+        <input type="url" id="caseLink" placeholder="https://...">
+      </div>
+      <div class="field full">
+        <label>Comments / Observations</label>
+        <textarea id="comments" placeholder="Optional notes..."></textarea>
+      </div>
+    </div>
+
+    <div class="section-title">⚖ Audit Attributes</div>
+    <div id="attributesContainer"></div>
+
+  </div>
+</div>
 
 <script>
-// ============================================
-// REPLACE WITH YOUR WEB APP URL
-// ============================================
-const SHEET_URL = "https://script.google.com/macros/s/AKfycby6ZBQvPnHevOXrTkWESNXgQ30-v2_Bpz6WUjCx_p-PTxNs-9zRpa4G10Be_l-c1vzcdA/exec";
+  const APPS_SCRIPT_URL = ''; // https://script.google.com/macros/s/AKfycbzQVyduhG1U8jh7cGFHhkTh_wKVW9RHKmpUuEnl6tl_z5ckAC0LFK0lyp8ksMXXqtVxiA/exec
 
-const values = {};
-const catErrors = {
-  call: false, whatsapp: false, email: false, documentation: false,
-  leadstage: false, deal: false, task: false, followup: false
-};
-let hasAutofail = false;
+  const CONSULTANTS = [
+    { name: 'Muhammad Bin Atif',       email: 'muhammadbinatif@hofmigration.com' },
+    { name: 'Aqsa Fareed',             email: 'aqsafareed@hofmigration.com' },
+    { name: 'Badar Saeed',             email: 'badar@hofmigration.com' },
+    { name: 'Muhammad Awaad',          email: 'awaad@hofmigration.com' },
+    { name: 'Muhammad Hanzla',         email: 'hanzla@hofmigration.com' },
+    { name: 'Tuba',                    email: 'tuba@hofmigration.com' },
+    { name: 'Mashal Fatima',           email: 'mashal@hofmigration.com' },
+    { name: 'Muizza',                  email: 'muizza@hofmigration.com' },
+    { name: 'Sultan Butt',             email: 'sultanbutt@hofmigration.com' },
+    { name: 'Rabbiya Jillani',         email: 'Rabbiya@hofmigration.com' },
+    { name: 'Muhammad Diean',          email: 'diean@hofmigration.com' },
+    { name: 'Muhammad Shahzad Fiaz',   email: 'shahzadfiaz@hofmigration.com' },
+    { name: 'Fatima Zahid',            email: 'fatimazahid@hofmigration.com' },
+    { name: 'Ayesha Zahid',            email: 'ayeshazahid@hofmigration.com' },
+    { name: 'Syed Hussain Ali Haris',  email: 'Hussainshah@hofmigration.com' },
+    { name: 'Ahmad Ali',               email: 'ahmada@hofmigration.com' },
+    { name: 'Ali Raza Qureshi',        email: 'aliraza@hofmigration.com' },
+    { name: 'Mishal Naseem',           email: 'mishal@hofmigration.com' },
+    { name: 'Fahad Butt',              email: 'fahad@hofmigration.com' },
+    { name: 'Atika Zainab',            email: 'atika@hofmigration.com' },
+    { name: 'Hamza Mughal',            email: 'hamzaazeemi@hofmigration.com' }
+  ];
 
-function setAttr(btn, col, val) {
-  const row = btn.closest('.attr-row');
-  const current = values[col];
-  
-  if (current === val) {
-    values[col] = null;
-    row.querySelectorAll('.attr-btn').forEach(b => b.classList.remove('active'));
-  } else {
-    values[col] = val;
-    row.querySelectorAll('.attr-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-  
-  updateScore();
-}
+  const AUDITORS = ['Misbah', 'Momina'];
 
-function updateScore() {
-  hasAutofail = false;
-  Object.values(values).forEach(v => { if (v === 'Autofail') hasAutofail = true; });
-  
-  // Reset category errors
-  Object.keys(catErrors).forEach(k => catErrors[k] = false);
-  
-  // Check each category
-  const checkCat = (cols, key) => {
-    cols.forEach(c => {
-      const v = values[c];
-      if (v === 'No' || v === 'Autofail') catErrors[key] = true;
-    });
-  };
-  
-  checkCat(['D'], 'call');
-  checkCat(['E','F','G'], 'whatsapp');
-  checkCat(['H','I','J'], 'email');
-  checkCat(['K','L'], 'documentation');
-  checkCat(['M','N','O'], 'leadstage');
-  checkCat(['P','Q','R','S'], 'deal');
-  checkCat(['T','U','V'], 'task');
-  checkCat(['W'], 'followup');
-  
-  let errors = 0;
-  Object.values(catErrors).forEach(e => { if (e) errors++; });
-  
-  const score = hasAutofail ? 0 : Math.max(0, 100 - (errors * 10));
-  document.getElementById('totalScore').textContent = score;
-}
+  const ATTRIBUTES = [
+    { id: 'call', name: 'Call Error', icon: '📞', weight: 17,
+      desc: 'Call logged in HubSpot with proper description',
+      errors: ['Call Logged,', 'Call Discription'] },
+    { id: 'whatsapp', name: 'Whatsapp Error', icon: '💬', weight: 6,
+      desc: 'WhatsApp used and logged when required',
+      errors: ['WhatsApp Used (when required)', 'WhatsApp Logged in HubSpot', 'WhatsApp Note (if unavailable)'] },
+    { id: 'email', name: 'Email Error', icon: '✉️', weight: 6,
+      desc: 'Email sent professionally with proper signature',
+      errors: ['Sent (when required)', 'Professional (no AI/emojis)', 'Company Signature Used'] },
+    { id: 'documentation', name: 'Documentation Error', icon: '📝', weight: 17,
+      desc: 'Description, properties, and outcome recorded',
+      errors: ['Description / Call Notes added', 'All Required Properties Completed', 'Outcome'] },
+    { id: 'leadStage', name: 'Lead Stage Error', icon: '🏷️', weight: 21,
+      desc: 'Lead stage updated correctly per SOP',
+      errors: ['Lead Stage Updated After Contact', 'Qualified Stage Marked', 'Correct Lead Stage Used (per SOP)'] },
+    { id: 'deal', name: 'Deal Error', icon: '⚡', weight: 14,
+      desc: 'Deal created in correct pipeline if qualified',
+      errors: ['Deal Created (if qualified)', 'Correct Pipeline Selected'] },
+    { id: 'task', name: 'Task Error', icon: '✅', weight: 8,
+      desc: 'Task created, completed timely, type matches request',
+      errors: ['Task Created (for callback/follow-up)', 'Task Completed Timely', 'Task Type Matches Request'] },
+    { id: 'followup', name: 'Follow up', icon: '🔔', weight: 11,
+      desc: 'Timely contact made with the lead',
+      errors: ['No Timely Contact'] }
+  ];
 
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 4000);
-}
-
-document.getElementById('auditForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  const consultant = document.getElementById('consultant').value;
-  const leadStage = document.getElementById('leadStage').value;
-  const caseLink = document.getElementById('caseLink').value;
-  const auditorName = document.getElementById('auditorName').value;
-  
-  if (!consultant || !leadStage || !caseLink || !auditorName) {
-    showToast('⚠️ Fill all required fields', 'error');
-    return;
-  }
-  
-  const payload = {
-    action: 'submitAudit',
-    consultant: consultant,
-    auditDate: new Date().toLocaleDateString('en-GB'),
-    leadStageValue: leadStage,
-    caseLink: caseLink,
-    comments: document.getElementById('comments').value,
-    auditorName: auditorName
-  };
-  
-  // Add all sub-items
-  const cols = ['D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'];
-  cols.forEach(c => {
-    payload['col_' + c] = values[c] || '';
+  const state = {};
+  ATTRIBUTES.forEach(attr => {
+    state[attr.id] = { applicable: true, marks: {} };
+    attr.errors.forEach(e => state[attr.id].marks[e] = null);
   });
-  
-  const btn = document.getElementById('submitBtn');
-  btn.textContent = '⏳ Submitting...';
-  btn.disabled = true;
-  
-  try {
-    const params = new URLSearchParams();
-    Object.entries(payload).forEach(([k, v]) => {
-      if (v !== null && v !== undefined) params.append(k, v);
+
+  function init() {
+    const consultantSel = document.getElementById('consultant');
+    CONSULTANTS.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.name; opt.textContent = c.name;
+      consultantSel.appendChild(opt);
     });
-    
-    await fetch(SHEET_URL + '?' + params.toString(), {
-      method: 'GET',
-      mode: 'no-cors'
+    const auditorSel = document.getElementById('auditor');
+    AUDITORS.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a; opt.textContent = a;
+      auditorSel.appendChild(opt);
     });
-    
-    showToast('✓ Audit Submitted!', 'success');
-    
-    // Reset form
-    document.getElementById('auditForm').reset();
-    Object.keys(values).forEach(k => delete values[k]);
-    document.querySelectorAll('.attr-btn').forEach(b => b.classList.remove('active'));
-    Object.keys(catErrors).forEach(k => catErrors[k] = false);
-    hasAutofail = false;
+    document.getElementById('auditDate').valueAsDate = new Date();
+    renderAttributes();
     updateScore();
-    
-  } catch (err) {
-    showToast('✗ Failed: ' + err.message, 'error');
-    console.error(err);
-  } finally {
-    btn.textContent = '⬆ Submit Audit to Sheet';
-    btn.disabled = false;
   }
-});
 
-updateScore();
+  function renderAttributes() {
+    const container = document.getElementById('attributesContainer');
+    container.innerHTML = '';
+    ATTRIBUTES.forEach(attr => {
+      const div = document.createElement('div');
+      div.className = 'attribute';
+      div.id = `attr-${attr.id}`;
+
+      const errorRowsHtml = attr.errors.map((errName, idx) => `
+        <div class="error-row" id="row-${attr.id}-${idx}">
+          <div class="error-label">${errName}</div>
+          <button class="chip-btn error-chip"
+                  data-attr="${attr.id}" data-err="${errName}" data-mark="error"
+                  title="Mark as Error (partial deduction)">❌</button>
+          <button class="chip-btn autofail-chip"
+                  data-attr="${attr.id}" data-err="${errName}" data-mark="autofail"
+                  title="Mark as Autofail (whole audit = 0)">0️⃣</button>
+        </div>
+      `).join('');
+
+      div.innerHTML = `
+        <div class="attr-header">
+          <div class="attr-info">
+            <div class="attr-name">
+              ${attr.icon} ${attr.name}
+              <span class="attr-points-badge" id="points-${attr.id}">${attr.weight} pts</span>
+            </div>
+            <div class="attr-desc">${attr.desc}</div>
+          </div>
+          <div class="applicability-toggle">
+            <button class="active applicable" data-attr="${attr.id}" data-app="true">✓ APPLICABLE</button>
+            <button data-attr="${attr.id}" data-app="false">— N/A</button>
+          </div>
+        </div>
+        <div class="error-rows">${errorRowsHtml}</div>
+      `;
+      container.appendChild(div);
+    });
+
+    document.querySelectorAll('.applicability-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => toggleApplicability(btn.dataset.attr, btn.dataset.app === 'true'));
+    });
+    document.querySelectorAll('.chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => toggleMark(btn.dataset.attr, btn.dataset.err, btn.dataset.mark));
+    });
+  }
+
+  function toggleApplicability(attrId, applicable) {
+    state[attrId].applicable = applicable;
+    if (!applicable) Object.keys(state[attrId].marks).forEach(k => state[attrId].marks[k] = null);
+
+    const card = document.getElementById(`attr-${attrId}`);
+    card.querySelectorAll('.applicability-toggle button').forEach(b => {
+      b.classList.toggle('active', b.dataset.app === String(applicable));
+      b.classList.toggle('applicable', b.dataset.app === 'true');
+      b.classList.toggle('not-applicable', b.dataset.app === 'false');
+    });
+    card.classList.toggle('na-state', !applicable);
+    card.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+    card.querySelectorAll('.error-row').forEach(r => r.classList.remove('error-mark', 'autofail-mark'));
+    refreshAttributeVisuals(attrId);
+    updateScore();
+  }
+
+  function toggleMark(attrId, errName, mark) {
+    if (!state[attrId].applicable) return;
+    const current = state[attrId].marks[errName];
+    state[attrId].marks[errName] = (current === mark) ? null : mark;
+    refreshAttributeVisuals(attrId);
+    updateScore();
+  }
+
+  function refreshAttributeVisuals(attrId) {
+    const attr = ATTRIBUTES.find(a => a.id === attrId);
+    const card = document.getElementById(`attr-${attrId}`);
+    let hasError = false, hasAutofail = false;
+
+    attr.errors.forEach((errName, idx) => {
+      const mark = state[attrId].marks[errName];
+      const row = document.getElementById(`row-${attrId}-${idx}`);
+      const errBtn = row.querySelector('.error-chip');
+      const afBtn = row.querySelector('.autofail-chip');
+
+      errBtn.classList.toggle('active', mark === 'error');
+      afBtn.classList.toggle('active', mark === 'autofail');
+      row.classList.toggle('error-mark', mark === 'error');
+      row.classList.toggle('autofail-mark', mark === 'autofail');
+
+      if (mark === 'error') hasError = true;
+      if (mark === 'autofail') hasAutofail = true;
+    });
+
+    card.classList.toggle('has-error', hasError && !hasAutofail);
+    card.classList.toggle('has-autofail', hasAutofail);
+  }
+
+  function getAttributeStatus(attrId) {
+    if (!state[attrId].applicable) return 'na';
+    const marks = Object.values(state[attrId].marks);
+    if (marks.includes('autofail')) return 'autofail';
+    if (marks.includes('error')) return 'error';
+    return 'pass';
+  }
+
+  function calculateScore() {
+    const hasAutofail = ATTRIBUTES.some(a => getAttributeStatus(a.id) === 'autofail');
+    if (hasAutofail) return { score: 0, autofail: true, reason: 'Autofail marker triggered on critical attribute' };
+
+    const erroredAttrs = ATTRIBUTES.filter(a => getAttributeStatus(a.id) === 'error');
+    if (erroredAttrs.length >= 4) return { score: 0, autofail: true, reason: `${erroredAttrs.length} attributes have errors (4+ = autofail)` };
+
+    const applicable = ATTRIBUTES.filter(a => state[a.id].applicable);
+    const totalApplicableWeight = applicable.reduce((sum, a) => sum + a.weight, 0);
+    if (totalApplicableWeight === 0) return { score: 0, autofail: false, reason: 'No applicable attributes' };
+
+    let earned = 0;
+    applicable.forEach(a => {
+      if (getAttributeStatus(a.id) === 'pass') earned += (a.weight / totalApplicableWeight) * 100;
+    });
+
+    return { score: Math.round(earned * 10) / 10, autofail: false, reason: '' };
+  }
+
+  function calculateViolationPoints() {
+    let points = 0;
+    ATTRIBUTES.forEach(a => {
+      if (!state[a.id].applicable) return;
+      const status = getAttributeStatus(a.id);
+      if (status === 'autofail') {
+        if (['leadStage', 'deal', 'documentation'].includes(a.id)) points += 10;
+        else if (['call', 'task', 'followup'].includes(a.id)) points += 7;
+        else points += 5;
+      } else if (status === 'error') {
+        if (['leadStage', 'deal', 'documentation'].includes(a.id)) points += 5;
+        else if (['call', 'task', 'followup'].includes(a.id)) points += 3;
+        else points += 2;
+      }
+    });
+    return points;
+  }
+
+  function getSeverity(score, autofail) {
+    if (autofail || score === 0) return { label: '🚨 AUTO-FAIL', cls: 'danger' };
+    if (score >= 90) return { label: '🟢 EXCELLENT', cls: '' };
+    if (score >= 75) return { label: '🔵 GOOD', cls: '' };
+    if (score >= 60) return { label: '🟡 NEEDS IMPROVEMENT', cls: 'warning' };
+    return { label: '🔴 CRITICAL', cls: 'danger' };
+  }
+
+  function updateScore() {
+    const result = calculateScore();
+    const sev = getSeverity(result.score, result.autofail);
+
+    const scoreEl = document.getElementById('scoreValue');
+    scoreEl.textContent = result.score;
+    scoreEl.className = 'score-value ' + sev.cls;
+    const bandEl = document.getElementById('scoreBand');
+    bandEl.textContent = sev.label;
+    bandEl.className = 'score-band ' + sev.cls;
+    document.getElementById('autofailBanner').classList.toggle('active', result.autofail);
+
+    const breakdownEl = document.getElementById('breakdown');
+    const applicable = ATTRIBUTES.filter(a => state[a.id].applicable);
+    const totalApplicableWeight = applicable.reduce((sum, a) => sum + a.weight, 0) || 1;
+
+    breakdownEl.innerHTML = ATTRIBUTES.map(a => {
+      const status = getAttributeStatus(a.id);
+      let pts, max, cls = '';
+      if (status === 'na') { pts = 'N/A'; max = 'N/A'; cls = 'na'; }
+      else {
+        max = Math.round((a.weight / totalApplicableWeight) * 100 * 10) / 10;
+        if (status === 'pass') pts = max;
+        else { pts = 0; cls = 'failed'; }
+      }
+      return `<div class="breakdown-item ${cls}"><div class="label">${a.icon} ${a.name}</div><div class="points">${pts}/${max}</div></div>`;
+    }).join('');
+
+    ATTRIBUTES.forEach(a => {
+      const el = document.getElementById(`points-${a.id}`);
+      const status = getAttributeStatus(a.id);
+      if (status === 'na') { el.textContent = 'N/A'; return; }
+      const max = Math.round((a.weight / totalApplicableWeight) * 100 * 10) / 10;
+      const earned = (status === 'pass') ? max : 0;
+      el.textContent = `${earned} / ${max} pts`;
+    });
+  }
+
+  async function submitAudit() {
+    const consultant = document.getElementById('consultant').value;
+    const auditor = document.getElementById('auditor').value;
+    const auditDate = document.getElementById('auditDate').value;
+    const caseLink = document.getElementById('caseLink').value;
+    const comments = document.getElementById('comments').value;
+
+    if (!consultant || !auditor) { showStatus('Please select Consultant and Auditor.', 'error'); return; }
+
+    const result = calculateScore();
+    const sev = getSeverity(result.score, result.autofail);
+    const violationPoints = calculateViolationPoints();
+
+    const attributeValues = {};
+    ATTRIBUTES.forEach(a => {
+      const s = state[a.id];
+      if (!s.applicable) { attributeValues[a.id] = 'N/A'; return; }
+      const autofailErr = a.errors.find(e => s.marks[e] === 'autofail');
+      if (autofailErr) { attributeValues[a.id] = '0️⃣ ' + autofailErr; return; }
+      const errorErr = a.errors.find(e => s.marks[e] === 'error');
+      if (errorErr) { attributeValues[a.id] = '❌ ' + errorErr; return; }
+      attributeValues[a.id] = '';
+    });
+
+    const consultantObj = CONSULTANTS.find(c => c.name === consultant);
+    const consultantEmail = consultantObj ? consultantObj.email : '';
+
+    const payload = {
+      consultant, consultantEmail, auditDate,
+      callError: attributeValues.call,
+      whatsappError: attributeValues.whatsapp,
+      emailError: attributeValues.email,
+      documentationError: attributeValues.documentation,
+      leadStageError: attributeValues.leadStage,
+      dealError: attributeValues.deal,
+      taskError: attributeValues.task,
+      followUp: attributeValues.followup,
+      comments, caseLink,
+      totalScore: result.score,
+      auditor, violationPoints,
+      severity: sev.label,
+      autofailReason: result.autofail ? result.reason : ''
+    };
+
+    if (!APPS_SCRIPT_URL) {
+      showStatus('⚠ Apps Script URL not configured. Check the form code.', 'error');
+      console.log('Payload (would be sent):', payload);
+      return;
+    }
+
+    showStatus('⏳ Submitting...', 'loading');
+    document.getElementById('submitBtn').disabled = true;
+
+    try {
+      const formData = new FormData();
+      Object.keys(payload).forEach(k => formData.append(k, payload[k]));
+      await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+      showStatus('✓ Audit submitted successfully!', 'success');
+      setTimeout(() => resetForm(), 2000);
+    } catch (err) {
+      showStatus('✗ Submission failed: ' + err.message, 'error');
+    } finally {
+      document.getElementById('submitBtn').disabled = false;
+    }
+  }
+
+  function showStatus(msg, type) {
+    const el = document.getElementById('submitStatus');
+    el.textContent = msg;
+    el.className = 'submit-status ' + type;
+  }
+
+  function resetForm() {
+    document.getElementById('consultant').value = '';
+    document.getElementById('auditor').value = '';
+    document.getElementById('auditDate').valueAsDate = new Date();
+    document.getElementById('caseLink').value = '';
+    document.getElementById('comments').value = '';
+    ATTRIBUTES.forEach(a => {
+      state[a.id] = { applicable: true, marks: {} };
+      a.errors.forEach(e => state[a.id].marks[e] = null);
+    });
+    renderAttributes();
+    updateScore();
+    document.getElementById('submitStatus').className = 'submit-status';
+  }
+
+  init();
 </script>
-
 </body>
 </html>
