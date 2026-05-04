@@ -10,7 +10,7 @@
   --bg:#0b0f1e; --surface:#111827; --surface2:#1a2236; --surface3:#212d45;
   --border:#263352; --border2:#1e2a44;
   --accent:#6366f1; --accent2:#818cf8; --accent-glow:rgba(99,102,241,0.25);
-  --green:#22c55e; --red:#ef4444; --yellow:#f59e0b;
+  --green:#22c55e; --red:#ef4444; --yellow:#f59e0b; --orange:#f97316;
   --text:#e2e8f8; --text2:#8b94b8; --text3:#4a5280;
   --shadow:0 8px 32px rgba(0,0,0,0.5);
   --radius:14px; --radius-sm:8px;
@@ -21,7 +21,6 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.3s}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:48px 48px;opacity:0.3}
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 50% 0%,var(--accent-glow),transparent 70%)}
-
 .topbar{position:sticky;top:0;z-index:200;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(0,0,0,0.4)}
 .topbar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .logo-text-block{display:flex;flex-direction:column;line-height:1}
@@ -36,11 +35,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .topbar-submit-btn{display:flex;align-items:center;gap:7px;padding:8px 20px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;white-space:nowrap;box-shadow:0 2px 16px var(--accent-glow)}
 .topbar-submit-btn:hover{transform:translateY(-1px);box-shadow:0 4px 24px var(--accent-glow)}
 .topbar-submit-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none}
-
+.topbar-finish-btn{display:flex;align-items:center;gap:7px;padding:8px 20px;border-radius:9px;border:1px solid var(--green);background:rgba(34,197,94,0.12);color:var(--green);font-size:12px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;white-space:nowrap;font-family:'Inter',sans-serif}
+.topbar-finish-btn:hover{background:rgba(34,197,94,0.2);border-color:var(--green);transform:translateY(-1px)}
+.topbar-finish-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none}
 .layout{position:relative;z-index:1;display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - var(--topbar-h));align-items:start}
 .main-col{padding:28px 24px 80px;min-width:0}
 .sidebar-col{position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto;padding:20px 16px 40px;border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-
 .score-header{padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:center;position:relative;overflow:hidden}
 .score-header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--accent-glow),transparent 70%);pointer-events:none}
 .score-label-top{font-size:9px;font-weight:700;letter-spacing:0.18em;color:var(--text3);text-transform:uppercase}
@@ -50,13 +50,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .score-ring{transform:rotate(-90deg)}
 .ring-bg{fill:none;stroke:var(--border);stroke-width:6}
 .ring-fg{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 0.6s ease,stroke 0.4s;filter:drop-shadow(0 0 5px var(--accent))}
-.autofail-banner{margin-top:14px;padding:11px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:var(--red);font-size:11px;font-weight:700;text-align:center;display:none}
-.autofail-banner.active{display:block}
-
+.critical-banner{margin-top:14px;padding:11px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:var(--red);font-size:11px;font-weight:700;text-align:center;display:none}
+.critical-banner.active{display:block}
 .page-header{margin-bottom:24px}
 .page-title{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;letter-spacing:0.01em}
 .page-sub{font-size:12px;color:var(--text2);margin-top:5px;line-height:1.5}
-
 .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow);transition:border-color 0.2s,box-shadow 0.2s}
 .section:hover{border-color:var(--accent);box-shadow:var(--shadow),0 0 0 1px var(--accent-glow)}
 .section-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
@@ -68,7 +66,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .section.collapsed .chevron{transform:rotate(-90deg)}
 .section-body{padding:16px;display:flex;flex-direction:column;gap:12px}
 .section.collapsed .section-body{display:none}
-
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
 .field label .req{color:var(--red)}
@@ -76,7 +73,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .field select:focus,.field input:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .field textarea{min-height:80px;resize:vertical}
 .fields-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
 .field-with-pin{display:flex;flex-direction:column;gap:6px;position:relative}
 .field-label-row{display:flex;align-items:center;justify-content:space-between}
 .field-label-row label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
@@ -89,10 +85,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .field-with-pin.is-pinned select,.field-with-pin.is-pinned input{display:none}
 .pinned-val-display{font-size:12px;color:var(--yellow);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-sm);padding:9px 14px;font-weight:600;display:none}
 .field-with-pin.is-pinned .pinned-val-display{display:block}
-
 .attribute{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:border-color 0.2s,opacity 0.2s}
 .attribute.has-error{border-color:rgba(245,158,11,0.4)}
-.attribute.has-autofail{border-color:var(--red)}
+.attribute.has-critical{border-color:var(--red)}
 .attribute.na-state{opacity:0.45}
 .attr-header{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;margin-bottom:12px}
 .attr-letter{width:28px;height:28px;background:var(--surface);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);font-family:'JetBrains Mono',monospace}
@@ -105,56 +100,49 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .applicability-toggle button:hover{color:var(--text)}
 .applicability-toggle button.active.applicable{background:rgba(99,102,241,0.2);color:var(--accent)}
 .applicability-toggle button.active.not-applicable{background:rgba(139,155,180,0.15);color:var(--text2)}
-
 .error-rows{display:flex;flex-direction:column;gap:6px}
 .error-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;transition:border-color 0.15s}
 .error-row.error-mark{border-color:var(--yellow)}
-.error-row.autofail-mark{border-color:var(--red)}
+.error-row.critical-mark{border-color:var(--red)}
 .error-label{font-size:12px;color:var(--text);font-weight:500}
-
 .chip-btn{width:40px;height:30px;border-radius:7px;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2) 0%,var(--surface) 100%);color:var(--text3);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #060912,0 6px 14px rgba(0,0,0,0.4);transition:all 0.12s ease-out;user-select:none}
 .chip-btn:hover{transform:translateY(-1px);box-shadow:0 5px 0 #060912,0 7px 16px rgba(0,0,0,0.4);color:var(--text)}
 .chip-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #060912}
 .chip-btn.error-chip.active{background:linear-gradient(180deg,var(--yellow) 0%,#c97500 100%);border-color:#d97706;color:white;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transform:translateY(2px)}
-.chip-btn.autofail-chip.active{background:linear-gradient(180deg,var(--red) 0%,#b91c1c 100%);border-color:#dc2626;color:white;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transform:translateY(2px)}
+.chip-btn.critical-chip.active{background:linear-gradient(180deg,var(--red) 0%,#b91c1c 100%);border-color:#dc2626;color:white;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transform:translateY(2px)}
 .chip-btn.error-chip:hover:not(.active){color:var(--yellow);border-color:var(--yellow)}
-.chip-btn.autofail-chip:hover:not(.active){color:var(--red);border-color:var(--red)}
-
+.chip-btn.critical-chip:hover:not(.active){color:var(--red);border-color:var(--red)}
 .submit-area{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
 .btn-reset{padding:11px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
 .btn-submit{flex:1;padding:13px 24px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:14px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px var(--accent-glow);font-family:'Inter',sans-serif}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--accent-glow)}
 .btn-submit:disabled{opacity:0.45;cursor:not-allowed;transform:none}
-
-/* Spinner inside submit button */
+.btn-finish{padding:13px 24px;border-radius:var(--radius-sm);border:1px solid var(--green);background:rgba(34,197,94,0.12);color:var(--green);font-size:14px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif}
+.btn-finish:hover{background:rgba(34,197,94,0.2);transform:translateY(-2px)}
+.btn-finish:disabled{opacity:0.45;cursor:not-allowed;transform:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.75s linear infinite;flex-shrink:0}
-
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:13px 20px;border-radius:11px;font-size:13px;font-weight:600;letter-spacing:0.02em;box-shadow:0 8px 32px rgba(0,0,0,0.35);transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);max-width:360px;backdrop-filter:blur(12px)}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:var(--green)}
 .toast.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
 .toast.info{background:rgba(99,102,241,0.12);border:1px solid var(--border);color:var(--accent)}
-
 .submit-status{margin-top:12px;padding:10px;border-radius:8px;font-size:11px;text-align:center;display:none;font-weight:600}
 .submit-status.success{display:block;background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
 .submit-status.error{display:block;background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
 .submit-status.loading{display:block;background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.3)}
-
 .breakdown-title{font-size:10px;color:var(--text2);margin-bottom:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
 .breakdown-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px solid rgba(38,51,82,0.4)}
 .breakdown-item:last-child{border-bottom:none}
 .breakdown-item.na{opacity:0.4}
 .breakdown-item.failed{color:var(--red)}
 .breakdown-item .points{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px}
-
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}.score-ring-wrap{display:none}}
 @media(max-width:540px){.fields-row{grid-template-columns:1fr}.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
 </style>
 </head>
 <body class="t-light">
-
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo-text-block">
@@ -167,20 +155,22 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
       <span id="themeIcon">🌙</span> <span id="themeLabel">Dark Mode</span>
     </button>
+    <button type="button" class="topbar-finish-btn" id="topbarFinishBtn" onclick="finishDayAudits()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Finish Day & Send Report
+    </button>
     <button type="button" class="topbar-submit-btn" id="topbarSubmitBtn" onclick="submitAudit()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
       Submit Audit
     </button>
   </div>
 </div>
-
 <div class="layout">
   <div class="main-col">
     <div class="page-header">
       <div class="page-title">⬡ Migration Quality Audit</div>
-      <div class="page-sub">Click ❌ partial deduction · 0️⃣ autofail (score = 0) · Toggle N/A for inapplicable attributes · 📌 Pin fields for bulk audits · 🔔 5+ autofails/day triggers manager alert</div>
+      <div class="page-sub">Each attribute worth <strong>12.5 points</strong> (equalized scoring) · Click ❌ for minor error · ⛔ for critical error (forces score to 0) · Toggle N/A for inapplicable attributes · 📌 Pin fields for bulk audits · Click "Finish Day" button at end of day to send comprehensive performance report to manager</div>
     </div>
-
     <div class="section" id="sec-case">
       <div class="section-header" onclick="toggleSection('sec-case')">
         <div class="section-header-left">
@@ -241,13 +231,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         </div>
       </div>
     </div>
-
     <div class="section" id="sec-attributes">
       <div class="section-header" onclick="toggleSection('sec-attributes')">
         <div class="section-header-left">
           <span class="section-icon">⚖</span>
           <div>
-            <div class="section-title">Audit Attributes</div>
+            <div class="section-title">Audit Attributes (Equal 12.5 Points Each)</div>
             <div class="section-subtitle">Call · WhatsApp · Email · Documentation · Lead Stage · Deal · Task · Follow Up</div>
           </div>
         </div>
@@ -257,14 +246,16 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         <div id="attributesContainer"></div>
       </div>
     </div>
-
     <div class="submit-area">
       <button type="button" class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
       <button type="button" class="btn-submit" id="submitBtn" onclick="submitAudit()">⬆ Submit to Sheet</button>
+      <button type="button" class="btn-finish" id="finishBtn" onclick="finishDayAudits()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Finish Day & Send Report
+      </button>
     </div>
     <div class="submit-status" id="submitStatus"></div>
   </div>
-
   <div class="sidebar-col">
     <div class="score-header">
       <div class="score-label-top">Total Score</div>
@@ -281,16 +272,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     </div>
     <div class="breakdown-title">Score Breakdown</div>
     <div id="breakdown"></div>
-    <div class="autofail-banner" id="autofailBanner">⛔ AUTOFAIL ACTIVE — Score forced to 0</div>
+    <div class="critical-banner" id="criticalBanner">⛔ CRITICAL ERROR — Score forced to 0</div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ============== CONFIG — update URL after re-deploying Apps Script ==============
+// ============== CONFIG ==============
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycYH8bxHEOEonrzTRcKfW0IK5ttoXR6ojuWRfzKthv6GeFp7cj9C0AAS0DbRajphHBCA/exec';
-
 const CONSULTANTS = [
   { name: 'Muhammad Bin Atif',       email: 'muhammadbinatif@hofmigration.com' },
   { name: 'Aqsa Fareed',             email: 'aqsafareed@hofmigration.com' },
@@ -315,29 +303,30 @@ const CONSULTANTS = [
   { name: 'Hamza Mughal',            email: 'hamzaazeemi@hofmigration.com' }
 ];
 
+// ============== EQUALIZED ATTRIBUTES (12.5 points each) ==============
 const ATTRIBUTES = [
-  { id: 'call',          letter: 'A', name: 'Call Error',          icon: '📞', weight: 17,
+  { id: 'call',          letter: 'A', name: 'Call Error',          icon: '📞', weight: 12.5,
     desc: 'Call logged in HubSpot with proper description',
-    errors: ['Call Logged,', 'Call Discription'] },
-  { id: 'whatsapp',      letter: 'B', name: 'Whatsapp Error',      icon: '💬', weight: 6,
+    errors: ['Call Logged', 'Call Description'] },
+  { id: 'whatsapp',      letter: 'B', name: 'WhatsApp Error',      icon: '💬', weight: 12.5,
     desc: 'WhatsApp used and logged when required',
     errors: ['WhatsApp Used (when required)', 'WhatsApp Logged in HubSpot', 'WhatsApp Note (if unavailable)'] },
-  { id: 'email',         letter: 'C', name: 'Email Error',         icon: '✉️', weight: 6,
+  { id: 'email',         letter: 'C', name: 'Email Error',         icon: '✉️', weight: 12.5,
     desc: 'Email sent professionally with proper signature',
     errors: ['Sent (when required)', 'Professional (no AI/emojis)', 'Company Signature Used'] },
-  { id: 'documentation', letter: 'D', name: 'Documentation Error', icon: '📝', weight: 17,
+  { id: 'documentation', letter: 'D', name: 'Documentation Error', icon: '📝', weight: 12.5,
     desc: 'Description, properties, and outcome recorded',
     errors: ['Description / Call Notes added', 'All Required Properties Completed', 'Outcome'] },
-  { id: 'leadStageErr',  letter: 'E', name: 'Lead Stage Error',    icon: '🏷️', weight: 21,
+  { id: 'leadStageErr',  letter: 'E', name: 'Lead Stage Error',    icon: '🏷️', weight: 12.5,
     desc: 'Lead stage updated correctly per SOP',
     errors: ['Lead Stage Updated After Contact', 'Qualified Stage Marked', 'Correct Lead Stage Used (per SOP)'] },
-  { id: 'deal',          letter: 'F', name: 'Deal Error',          icon: '⚡', weight: 14,
+  { id: 'deal',          letter: 'F', name: 'Deal Error',          icon: '⚡', weight: 12.5,
     desc: 'Deal created in correct pipeline if qualified',
     errors: ['Deal Created (if qualified)', 'Correct Pipeline Selected'] },
-  { id: 'task',          letter: 'G', name: 'Task Error',          icon: '✅', weight: 8,
+  { id: 'task',          letter: 'G', name: 'Task Error',          icon: '✅', weight: 12.5,
     desc: 'Task created, completed timely, type matches request',
     errors: ['Task Created (for callback/follow-up)', 'Task Completed Timely', 'Task Type Matches Request'] },
-  { id: 'followup',      letter: 'H', name: 'Follow up',           icon: '🔔', weight: 11,
+  { id: 'followup',      letter: 'H', name: 'Follow-up Error',     icon: '🔔', weight: 12.5,
     desc: 'Timely contact made with the lead',
     errors: ['No Timely Contact'] }
 ];
@@ -351,6 +340,7 @@ ATTRIBUTES.forEach(a => {
 const pins = { consultant:{pinned:false,value:''}, leadStage:{pinned:false,value:''}, auditor:{pinned:false,value:''} };
 let isDark = false;
 let isSubmitting = false;
+let isFinishing = false;
 
 // ============== THEME ==============
 function toggleTheme() {
@@ -424,8 +414,8 @@ function renderAttributes() {
         ${attr.errors.map((e, i) => `
           <div class="error-row" id="row-${attr.id}-${i}">
             <div class="error-label">${e}</div>
-            <button class="chip-btn error-chip" data-attr="${attr.id}" data-err="${e}" data-mark="error" title="Partial deduction">❌</button>
-            <button class="chip-btn autofail-chip" data-attr="${attr.id}" data-err="${e}" data-mark="autofail" title="Autofail — score = 0">0️⃣</button>
+            <button class="chip-btn error-chip" data-attr="${attr.id}" data-err="${e}" data-mark="error" title="Minor error - partial deduction">❌</button>
+            <button class="chip-btn critical-chip" data-attr="${attr.id}" data-err="${e}" data-mark="critical" title="Critical error - score forced to 0">⛔</button>
           </div>`).join('')}
       </div>`;
     container.appendChild(div);
@@ -447,7 +437,7 @@ function toggleApplicability(attrId, applicable) {
   });
   card.classList.toggle('na-state', !applicable);
   card.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
-  card.querySelectorAll('.error-row').forEach(r => r.classList.remove('error-mark', 'autofail-mark'));
+  card.querySelectorAll('.error-row').forEach(r => r.classList.remove('error-mark', 'critical-mark'));
   refreshAttr(attrId); updateScore();
 }
 
@@ -460,41 +450,48 @@ function toggleMark(attrId, errName, mark) {
 function refreshAttr(attrId) {
   const attr = ATTRIBUTES.find(a => a.id === attrId);
   const card = document.getElementById(`attr-${attrId}`);
-  let hasErr = false, hasAF = false;
+  let hasErr = false, hasCrit = false;
   attr.errors.forEach((e, i) => {
     const mark = state[attrId].marks[e];
     const row  = document.getElementById(`row-${attrId}-${i}`);
     row.querySelector('.error-chip').classList.toggle('active', mark === 'error');
-    row.querySelector('.autofail-chip').classList.toggle('active', mark === 'autofail');
+    row.querySelector('.critical-chip').classList.toggle('active', mark === 'critical');
     row.classList.toggle('error-mark', mark === 'error');
-    row.classList.toggle('autofail-mark', mark === 'autofail');
+    row.classList.toggle('critical-mark', mark === 'critical');
     if (mark === 'error') hasErr = true;
-    if (mark === 'autofail') hasAF = true;
+    if (mark === 'critical') hasCrit = true;
   });
-  card.classList.toggle('has-error', hasErr && !hasAF);
-  card.classList.toggle('has-autofail', hasAF);
+  card.classList.toggle('has-error', hasErr && !hasCrit);
+  card.classList.toggle('has-critical', hasCrit);
 }
 
 function attrStatus(id) {
   if (!state[id].applicable) return 'na';
   const vals = Object.values(state[id].marks);
-  if (vals.includes('autofail')) return 'autofail';
+  if (vals.includes('critical')) return 'critical';
   if (vals.includes('error'))    return 'error';
   return 'pass';
 }
 
 function calcScore() {
-  if (ATTRIBUTES.some(a => attrStatus(a.id) === 'autofail'))
-    return { score: 0, autofail: true, reason: 'Autofail marker triggered' };
+  // Check for critical errors
+  if (ATTRIBUTES.some(a => attrStatus(a.id) === 'critical'))
+    return { score: 0, hasCritical: true, reason: 'Critical error detected' };
+  
+  // Check for 4+ minor errors = critical violation
   const errored = ATTRIBUTES.filter(a => attrStatus(a.id) === 'error');
   if (errored.length >= 4)
-    return { score: 0, autofail: true, reason: errored.length + ' attributes with errors (4+ = autofail)' };
+    return { score: 0, hasCritical: true, reason: errored.length + ' attributes with minor errors (4+ = critical violation)' };
+  
+  // Calculate score with equal weights (12.5 each)
   const appl  = ATTRIBUTES.filter(a => state[a.id].applicable);
-  const total = appl.reduce((s, a) => s + a.weight, 0);
-  if (!total) return { score: 0, autofail: false, reason: 'No applicable attributes' };
-  let earned = 0;
-  appl.forEach(a => { if (attrStatus(a.id) === 'pass') earned += (a.weight / total) * 100; });
-  return { score: Math.round(earned * 10) / 10, autofail: false, reason: '' };
+  const total = appl.length;
+  if (!total) return { score: 0, hasCritical: false, reason: 'No applicable attributes' };
+  
+  const passed = appl.filter(a => attrStatus(a.id) === 'pass').length;
+  const score = (passed / total) * 100;
+  
+  return { score: Math.round(score * 10) / 10, hasCritical: false, reason: '' };
 }
 
 function calcViolation() {
@@ -502,49 +499,58 @@ function calcViolation() {
   ATTRIBUTES.forEach(a => {
     if (!state[a.id].applicable) return;
     const s = attrStatus(a.id);
-    if (s === 'autofail') pts += ['leadStageErr','deal','documentation'].includes(a.id) ? 10 : ['call','task','followup'].includes(a.id) ? 7 : 5;
-    else if (s === 'error') pts += ['leadStageErr','deal','documentation'].includes(a.id) ? 5 : ['call','task','followup'].includes(a.id) ? 3 : 2;
+    // Critical errors
+    if (s === 'critical') {
+      pts += ['leadStageErr','deal','documentation'].includes(a.id) ? 10 : 
+             ['call','task','followup'].includes(a.id) ? 7 : 5;
+    }
+    // Minor errors
+    else if (s === 'error') {
+      pts += ['leadStageErr','deal','documentation'].includes(a.id) ? 5 : 
+             ['call','task','followup'].includes(a.id) ? 3 : 2;
+    }
   });
   return pts;
 }
 
-function severity(score, autofail) {
-  if (autofail || score === 0) return { label:'AUTO-FAIL',         tagline:'Critical issue detected' };
-  if (score >= 90)             return { label:'EXCELLENT',         tagline:'All criteria passing' };
-  if (score >= 75)             return { label:'GOOD',              tagline:'Minor issues identified' };
-  if (score >= 60)             return { label:'NEEDS IMPROVEMENT', tagline:'Multiple issues found' };
-  return                              { label:'CRITICAL',          tagline:'Significant gaps in compliance' };
+function severity(score, hasCritical) {
+  if (hasCritical || score === 0) return { label:'CRITICAL VIOLATION', tagline:'Immediate attention required' };
+  if (score >= 90)                return { label:'EXCELLENT',          tagline:'All criteria met' };
+  if (score >= 75)                return { label:'GOOD',               tagline:'Minor issues identified' };
+  if (score >= 60)                return { label:'NEEDS IMPROVEMENT',  tagline:'Multiple issues found' };
+  return                                 { label:'POOR PERFORMANCE',    tagline:'Significant compliance gaps' };
 }
 
 function updateScore() {
   const res = calcScore();
-  const sev = severity(res.score, res.autofail);
+  const sev = severity(res.score, res.hasCritical);
   const el  = document.getElementById('scoreValue');
   el.textContent = res.score;
   el.style.color = res.score >= 90 ? 'var(--green)' : res.score >= 70 ? 'var(--yellow)' : 'var(--red)';
   document.getElementById('scoreBand').textContent    = sev.label;
   document.getElementById('scoreTagline').textContent = sev.tagline;
-  document.getElementById('autofailBanner').classList.toggle('active', res.autofail);
+  document.getElementById('criticalBanner').classList.toggle('active', res.hasCritical);
+  
   const ring = document.getElementById('ringFg');
   if (ring) {
     ring.style.strokeDashoffset = 182.2 - (res.score / 100) * 182.2;
     ring.style.stroke = res.score >= 90 ? 'var(--green)' : res.score >= 70 ? 'var(--yellow)' : 'var(--red)';
   }
-  const appl  = ATTRIBUTES.filter(a => state[a.id].applicable);
-  const total = appl.reduce((s, a) => s + a.weight, 0) || 1;
+  
+  // Update breakdown
   document.getElementById('breakdown').innerHTML = ATTRIBUTES.map(a => {
     const s = attrStatus(a.id);
-    let pts, max, cls = '';
+    let pts, max = 12.5, cls = '';
     if (s === 'na') { pts = 'N/A'; max = 'N/A'; cls = 'na'; }
-    else { max = Math.round((a.weight / total) * 100 * 10) / 10; pts = s === 'pass' ? max : 0; if (s !== 'pass') cls = 'failed'; }
+    else { pts = s === 'pass' ? 12.5 : 0; if (s !== 'pass') cls = 'failed'; }
     return `<div class="breakdown-item ${cls}"><div>${a.name}</div><div class="points">${pts}/${max}</div></div>`;
   }).join('');
+  
   ATTRIBUTES.forEach(a => {
     const el2 = document.getElementById(`points-${a.id}`);
     const s   = attrStatus(a.id);
     if (s === 'na') { el2.textContent = 'N/A'; return; }
-    const max = Math.round((a.weight / total) * 100 * 10) / 10;
-    el2.textContent = (s === 'pass' ? max : 0) + ' / ' + max;
+    el2.textContent = (s === 'pass' ? 12.5 : 0) + ' / 12.5';
   });
 }
 
@@ -574,7 +580,20 @@ function setSubmitting(on) {
     : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg> Submit Audit';
 }
 
-// ============== SUBMIT (no-cors POST — reliable, no CORS preflight) ==============
+function setFinishing(on) {
+  isFinishing = on;
+  const mainBtn = document.getElementById('finishBtn');
+  const topBtn  = document.getElementById('topbarFinishBtn');
+  mainBtn.disabled = on; topBtn.disabled = on;
+  mainBtn.innerHTML = on
+    ? '<div class="spinner" style="border-color:rgba(34,197,94,0.3);border-top-color:var(--green);"></div> Sending Report...'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Finish Day & Send Report';
+  topBtn.innerHTML = on
+    ? '<div class="spinner" style="border-color:rgba(34,197,94,0.3);border-top-color:var(--green);width:11px;height:11px;"></div> Sending Report...'
+    : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Finish Day & Send Report';
+}
+
+// ============== SUBMIT ==============
 async function submitAudit() {
   if (isSubmitting) return;
   const consultant = getPinned('consultant');
@@ -582,40 +601,38 @@ async function submitAudit() {
   const leadStage  = getPinned('leadStage');
   const caseLink   = document.getElementById('caseLink').value;
   const comments   = document.getElementById('comments').value;
-
+  
   if (!consultant || !auditor || !leadStage || !caseLink) {
     showToast('⚠️ Fill in Consultant, Auditor, Lead Stage, and Case Link.', 'error'); return;
   }
-
+  
   const res = calcScore();
-  const sev = severity(res.score, res.autofail);
+  const sev = severity(res.score, res.hasCritical);
   const vio = calcViolation();
-
   const attrVals = {};
+  
   ATTRIBUTES.forEach(a => {
     const s = state[a.id];
     if (!s.applicable) { attrVals[a.id] = 'N/A'; return; }
-    const af  = a.errors.find(e => s.marks[e] === 'autofail');
-    if (af)   { attrVals[a.id] = '0️⃣ ' + af; return; }
+    const crit = a.errors.find(e => s.marks[e] === 'critical');
+    if (crit) { attrVals[a.id] = '⛔ ' + crit; return; }
     const err = a.errors.find(e => s.marks[e] === 'error');
     if (err)  { attrVals[a.id] = '❌ ' + err; return; }
     attrVals[a.id] = '';
   });
-
+  
   const cObj  = CONSULTANTS.find(c => c.name === consultant);
   const email = cObj ? cObj.email : '';
-  const appl  = ATTRIBUTES.filter(a => state[a.id].applicable);
-  const total = appl.reduce((s, a) => s + a.weight, 0) || 1;
   const breakdown = ATTRIBUTES.map(a => {
     const s   = attrStatus(a.id);
-    const max = state[a.id].applicable ? Math.round((a.weight / total) * 100 * 10) / 10 : 'N/A';
-    const earn = s === 'pass' ? max : s === 'na' ? 'N/A' : 0;
+    const max = state[a.id].applicable ? 12.5 : 'N/A';
+    const earn = s === 'pass' ? 12.5 : s === 'na' ? 'N/A' : 0;
     return `${a.name}|${s}|${earn}|${max}`;
   }).join(';');
-
+  
   const payload = {
     consultant, consultantEmail: email,
-    auditDate:          new Date().toLocaleDateString('en-GB'),  // dd/MM/yyyy — matches sheet storage
+    auditDate:          new Date().toLocaleDateString('en-GB'),
     leadStage,
     callError:          attrVals.call,
     whatsappError:      attrVals.whatsapp,
@@ -630,33 +647,73 @@ async function submitAudit() {
     auditor,
     violationPoints:    vio,
     severity:           sev.label,
-    autofailReason:     res.autofail ? res.reason : '',
+    criticalReason:     res.hasCritical ? res.reason : '',
     breakdownDetails:   breakdown
   };
-
+  
   setSubmitting(true);
   showStatus('⏳ Submitting audit...', 'loading');
-
+  
   try {
-    // no-cors: avoids preflight entirely; response is opaque (can't be read)
-    // Apps Script still receives and processes the full JSON body
     await fetch(APPS_SCRIPT_URL, {
       method:  'POST',
       mode:    'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body:    JSON.stringify(payload)
     });
-    // With no-cors we assume success if fetch didn't throw
     showStatus('✓ Audit submitted successfully!', 'success');
     showToast('✓ Audit submitted and saved to sheet!', 'success');
     setTimeout(() => resetForm(), 2200);
   } catch (err) {
-    // Only fires on network failure (offline, DNS error, etc.)
     showStatus('✗ Network error — check your connection and try again.', 'error');
     showToast('✗ Network error: ' + err.message, 'error');
     console.error('Fetch error:', err);
   } finally {
     setSubmitting(false);
+  }
+}
+
+// ============== FINISH DAY ==============
+async function finishDayAudits() {
+  if (isFinishing || isSubmitting) return;
+  
+  const consultant = getPinned('consultant');
+  const auditor    = getPinned('auditor');
+  
+  if (!consultant || !auditor) {
+    showToast('⚠️ Pin Consultant and Auditor before finishing the day.', 'error');
+    return;
+  }
+  
+  const confirmMsg = `Send comprehensive daily report for ${consultant}?\n\nThis will email the manager and consultant with all of today's audit results, including critical errors and improvement areas.`;
+  if (!confirm(confirmMsg)) return;
+  
+  const todayStr = new Date().toLocaleDateString('en-GB');
+  const payload = {
+    action: 'finishDay',
+    consultant: consultant,
+    auditDate: todayStr,
+    auditor: auditor
+  };
+  
+  setFinishing(true);
+  showStatus('📧 Sending comprehensive daily report...', 'loading');
+  
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body:    JSON.stringify(payload)
+    });
+    showStatus('✓ Daily report sent successfully!', 'success');
+    showToast(`✓ Comprehensive report sent for ${consultant}!`, 'success');
+  } catch (err) {
+    showStatus('✗ Network error — check your connection and try again.', 'error');
+    showToast('✗ Network error: ' + err.message, 'error');
+    console.error('Finish day error:', err);
+  } finally {
+    setFinishing(false);
   }
 }
 
