@@ -225,6 +225,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}.score-ring-wrap{display:none}}
 @media(max-width:540px){.fields-row{grid-template-columns:1fr}.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
 </style>
+<base target="_blank">
 </head>
 <body class="t-light">
 
@@ -379,11 +380,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </div>
 <div class="toast" id="toast"></div>
 
-<>
+<script>
 // ══════════════════════════════════════════
 // CONFIG — update URL after redeployment
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIc6oMdX3PUZfqbRMdFgtZg1LZZNrJ00YNcSPOq-TLHOWjCLVSSHihKsODe_ZISbO2dQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNrY57ek3BiFy-dQ5k-MuGY9Mj0i8jBs3rfFvLkrvkc3DjaGutxbAQgoTTsZ8pl8SYPg/exec';
 const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
 
 const CONSULTANTS = [
@@ -708,8 +709,7 @@ function submitAudit() {
 
   fetch(APPS_SCRIPT_URL, {
     method:  'POST',
-    mode:    'no-cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
   }).catch(err => console.error('Submit error:', err));
 
@@ -796,8 +796,8 @@ function executeFinish() {
 
   const todayStr = new Date().toLocaleDateString('en-GB');
   fetch(APPS_SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ action:'finishDay', consultant: pendingFinish.consultant, auditDate: todayStr, auditor: pendingFinish.auditor })
   }).catch(err => console.error('Finish error:', err));
 
@@ -827,8 +827,8 @@ function executeSendAll() {
 
   const todayStr = new Date().toLocaleDateString('en-GB');
   fetch(APPS_SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ action:'sendAllReports', auditDate: todayStr, auditor })
   }).catch(err => console.error('Send all error:', err));
 
