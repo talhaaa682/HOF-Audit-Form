@@ -209,7 +209,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .modal-overlay.show{display:flex}
 .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6);text-align:center}
 .modal-icon{width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;font-size:30px}
-.modal-icon.error-icon{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4)}
 .modal-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px}
 .modal-message{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px}
 .modal-timestamp{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:10px 14px;margin-bottom:18px;display:inline-block}
@@ -221,6 +220,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .modal-close-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
 .modal-btn-row{display:flex;gap:10px;justify-content:center}
 .modal-cancel-btn{padding:11px 28px;border-radius:9px;border:1px solid var(--border);background:var(--surface3);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.modal-result-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:18px;text-align:left;font-size:12px;line-height:1.8;color:var(--text)}
+.modal-result-box strong{color:var(--accent)}
 
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}.score-ring-wrap{display:none}}
 @media(max-width:540px){.fields-row{grid-template-columns:1fr}.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
@@ -240,21 +241,14 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   </div>
   <div class="topbar-right">
     <button class="topbar-btn btn-theme" id="themeBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
-    <button class="topbar-btn btn-finish" id="topFinishBtn" onclick="finishDayAudits()">
-      ✓ Finish Day &amp; Send Report
-    </button>
-    <button class="topbar-btn btn-sendall" id="topSendAllBtn" onclick="sendAllReports()">
-      ✈ Send All Reports
-    </button>
-    <button class="topbar-btn btn-submit" id="topSubmitBtn" onclick="submitAudit()">
-      ↑ Submit Audit
-    </button>
+    <button class="topbar-btn btn-finish" id="topFinishBtn" onclick="finishDayAudits()">✓ Finish Day &amp; Send Report</button>
+    <button class="topbar-btn btn-sendall" id="topSendAllBtn" onclick="sendAllReports()">✈ Send All Reports</button>
+    <button class="topbar-btn btn-submit" id="topSubmitBtn" onclick="submitAudit()">↑ Submit Audit</button>
   </div>
 </div>
 
 <!-- ── LAYOUT ── -->
 <div class="layout">
-  <!-- MAIN COLUMN -->
   <div class="main-col">
     <div class="page-header">
       <div class="page-title">⬡ Migration Quality Audit</div>
@@ -266,16 +260,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="section-header" onclick="toggleSection('sec-case')">
         <div class="section-header-left">
           <span class="section-icon">◈</span>
-          <div>
-            <div class="section-title">Case Information</div>
-            <div class="section-subtitle">Consultant · Lead Stage · Auditor · Case Link · Notes</div>
-          </div>
+          <div><div class="section-title">Case Information</div><div class="section-subtitle">Consultant · Lead Stage · Auditor · Case Link · Notes</div></div>
         </div>
         <span class="chevron">▾</span>
       </div>
       <div class="section-body">
         <div class="fields-row">
-          <!-- Consultant -->
           <div class="field-with-pin" id="pin-wrap-consultant">
             <div class="field-label-row">
               <label>Consultant <span class="req">*</span><span class="pinned-badge" id="pin-badge-consultant" style="display:none">📌 PINNED</span></label>
@@ -284,7 +274,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
             <select id="consultant"></select>
             <div class="pinned-val-display" id="pin-display-consultant"></div>
           </div>
-          <!-- Auditor -->
           <div class="field-with-pin" id="pin-wrap-auditor">
             <div class="field-label-row">
               <label>Auditor <span class="req">*</span><span class="pinned-badge" id="pin-badge-auditor" style="display:none">📌 PINNED</span></label>
@@ -295,7 +284,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           </div>
         </div>
         <div class="fields-row">
-          <!-- Lead Stage -->
           <div class="field-with-pin" id="pin-wrap-leadStage">
             <div class="field-label-row">
               <label>Lead Stage <span class="req">*</span><span class="pinned-badge" id="pin-badge-leadStage" style="display:none">📌 PINNED</span></label>
@@ -314,7 +302,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
             </select>
             <div class="pinned-val-display" id="pin-display-leadStage"></div>
           </div>
-          <!-- Case Link -->
           <div class="field">
             <label>Case Link (HubSpot URL) <span class="req">*</span></label>
             <input type="url" id="caseLink" placeholder="https://app.hubspot.com/..."/>
@@ -332,10 +319,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="section-header" onclick="toggleSection('sec-attributes')">
         <div class="section-header-left">
           <span class="section-icon">⚖</span>
-          <div>
-            <div class="section-title">Audit Attributes — 12.5 Points Each</div>
-            <div class="section-subtitle">Call · WhatsApp · Email · Documentation · Lead Stage · Deal · Task · Follow Up</div>
-          </div>
+          <div><div class="section-title">Audit Attributes — 12.5 Points Each</div><div class="section-subtitle">Call · WhatsApp · Email · Documentation · Lead Stage · Deal · Task · Follow Up</div></div>
         </div>
         <span class="chevron">▾</span>
       </div>
@@ -344,7 +328,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       </div>
     </div>
 
-    <!-- Submit Area -->
     <div class="submit-area">
       <button type="button" class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
       <button type="button" class="btn-main" id="submitBtn" onclick="submitAudit()">⬆ Submit to Sheet</button>
@@ -374,7 +357,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box" id="modalBox"></div>
 </div>
@@ -382,9 +364,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <script>
 // ══════════════════════════════════════════
-// CONFIG — update URL after redeployment
+// CONFIG — update URL after each redeployment
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNrY57ek3BiFy-dQ5k-MuGY9Mj0i8jBs3rfFvLkrvkc3DjaGutxbAQgoTTsZ8pl8SYPg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLZb99osg4kjAiGeiNL1HHbGtfw7Fp89ut8-WX_pQLlBG9amzy9Uqrn1XEeW10cs7AMw/exec';
 const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
 
 const CONSULTANTS = [
@@ -443,6 +425,15 @@ const pins = {
   auditor:    { pinned:false, value:'' }
 };
 let isDark = false, isSubmitting = false, isFinishing = false;
+
+// ══ CORE: send GET request to Apps Script ══
+// This is the ONLY reliable way to communicate with Apps Script cross-origin
+function callAppsScript(params) {
+  const url = APPS_SCRIPT_URL + '?' + Object.entries(params)
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
+    .join('&');
+  return fetch(url, { method: 'GET' });
+}
 
 // ══ THEME ══
 function toggleTheme() {
@@ -645,7 +636,7 @@ function showStatus(msg, type) {
   el.textContent = msg; el.className = 'submit-status ' + type;
 }
 
-// ══ SUBMIT ══
+// ══ SUBMIT — now uses GET params ══
 function setSubmitting(on) {
   isSubmitting = on;
   ['submitBtn','topSubmitBtn'].forEach(id => {
@@ -655,7 +646,7 @@ function setSubmitting(on) {
   });
 }
 
-function submitAudit() {
+async function submitAudit() {
   if (isSubmitting) return;
   const consultant = getPinned('consultant');
   const auditor    = getPinned('auditor');
@@ -682,46 +673,58 @@ function submitAudit() {
     attrVals[a.id] = '';
   });
 
-  const cObj  = CONSULTANTS.find(c => c.name === consultant);
-  const payload = {
+  const cObj = CONSULTANTS.find(c => c.name === consultant);
+
+  const params = {
     consultant,
     consultantEmail:    cObj ? cObj.email : '',
     auditDate:          new Date().toLocaleDateString('en-GB'),
     leadStage,
-    callError:          attrVals.call,
-    whatsappError:      attrVals.whatsapp,
-    emailError:         attrVals.email,
-    documentationError: attrVals.documentation,
-    leadStageError:     attrVals.leadStageErr,
-    dealError:          attrVals.deal,
-    taskError:          attrVals.task,
-    followUp:           attrVals.followup,
-    comments, caseLink,
+    callError:          attrVals.call          || '',
+    whatsappError:      attrVals.whatsapp      || '',
+    emailError:         attrVals.email         || '',
+    documentationError: attrVals.documentation || '',
+    leadStageError:     attrVals.leadStageErr  || '',
+    dealError:          attrVals.deal          || '',
+    taskError:          attrVals.task          || '',
+    followUp:           attrVals.followup      || '',
+    comments,
+    caseLink,
     totalScore:         res.score,
     auditor,
     violationPoints:    vio,
-    severity:           sev.label,
-    criticalReason:     res.hasCritical ? res.reason : ''
+    severity:           sev.label
   };
 
   setSubmitting(true);
   showStatus('⏳ Saving to sheet...', 'loading');
 
-  fetch(APPS_SCRIPT_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload)
-  }).catch(err => console.error('Submit error:', err));
+  try {
+    const response = await callAppsScript(params);
+    const text = await response.text();
+    console.log('Submit response:', text);
 
-  setTimeout(() => {
-    showStatus('✓ Audit saved to RAW AUDIT NEW!', 'success');
-    showToast('✓ Saved to sheet!', 'success');
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
+
+    if (data.status === 'success') {
+      showStatus('✓ Audit saved to RAW AUDIT NEW!', 'success');
+      showToast('✓ Saved to sheet!', 'success');
+      setTimeout(resetForm, 1200);
+    } else {
+      showStatus('⚠️ ' + (data.message || 'Unknown error'), 'error');
+      showToast('⚠️ Submit failed: ' + (data.message || 'check console'), 'error');
+    }
+  } catch (err) {
+    console.error('Submit error:', err);
+    showStatus('⚠️ Network error — check console', 'error');
+    showToast('⚠️ Network error', 'error');
+  } finally {
     setSubmitting(false);
-    setTimeout(resetForm, 1200);
-  }, 700);
+  }
 }
 
-// ══ FINISH DAY ══
+// ══ FINISH DAY — real response handling ══
 let pendingFinish = null;
 
 function finishDayAudits() {
@@ -736,51 +739,59 @@ function finishDayAudits() {
   showModal('confirm');
 }
 
-function showModal(state, extra) {
+function showModal(modalState, extra) {
   const modal = document.getElementById('modal');
   const box   = document.getElementById('modalBox');
   const d     = pendingFinish || {};
 
-  if (state === 'confirm') {
+  if (modalState === 'confirm') {
     box.innerHTML =
       '<div class="modal-icon">📋</div>' +
       '<div class="modal-title">Send Daily Report?</div>' +
-      '<div class="modal-message">Send the comprehensive daily report for <strong>' + d.consultant + '</strong>?<br><br>Recipients:</div>' +
+      '<div class="modal-message">Send the comprehensive daily report for <strong>' + d.consultant + '</strong>?</div>' +
       '<div class="modal-recipients"><div class="modal-recipients-title">Recipients</div>' +
       '<div class="modal-recipients-list"><strong>Manager:</strong> ' + MANAGER_EMAIL + '<br><strong>Consultant:</strong> ' + (d.consultantEmail || '(not in directory)') + '</div></div>' +
-      '<div class="modal-btn-row">' +
-        '<button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>' +
-        '<button class="modal-close-btn" onclick="executeFinish()">Send Report</button>' +
-      '</div>';
-  } else if (state === 'sending') {
+      '<div class="modal-btn-row"><button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>' +
+      '<button class="modal-close-btn" onclick="executeFinish()">Send Report</button></div>';
+  } else if (modalState === 'sending') {
     box.innerHTML =
       '<div class="big-spinner"></div>' +
       '<div class="modal-title">Sending Report...</div>' +
-      '<div class="modal-message">Compiling today\'s audits for <strong>' + d.consultant + '</strong> and sending. Usually 5–10 seconds.</div>';
-  } else if (state === 'success') {
+      '<div class="modal-message">Compiling audits for <strong>' + d.consultant + '</strong>. This takes 5–15 seconds.</div>';
+  } else if (modalState === 'success') {
     box.innerHTML =
       '<div class="modal-icon">✓</div>' +
       '<div class="modal-title">Report Sent!</div>' +
-      '<div class="modal-message">Daily report for <strong>' + d.consultant + '</strong> emailed successfully.</div>' +
-      '<div class="modal-timestamp">Sent at ' + extra + '</div>' +
+      '<div class="modal-message">Daily report for <strong>' + d.consultant + '</strong> sent successfully.</div>' +
+      '<div class="modal-timestamp">Sent at ' + extra.sentAt + '</div>' +
+      '<div class="modal-result-box"><strong>Audits processed:</strong> ' + extra.auditsProcessed + '<br><strong>Critical issues:</strong> ' + extra.criticalCount + '</div>' +
       '<div class="modal-recipients"><div class="modal-recipients-title">Delivered To</div>' +
       '<div class="modal-recipients-list"><strong>Manager:</strong> ' + MANAGER_EMAIL + '<br><strong>Consultant:</strong> ' + (d.consultantEmail || '(not in directory)') + '</div></div>' +
       '<button class="modal-close-btn" onclick="closeModal()">Done</button>';
-  } else if (state === 'sendall-confirm') {
+  } else if (modalState === 'finish-error') {
+    box.innerHTML =
+      '<div class="modal-icon" style="background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);">⚠️</div>' +
+      '<div class="modal-title">Report Issue</div>' +
+      '<div class="modal-message">' + (extra || 'Something went wrong. Check Apps Script Executions log.') + '</div>' +
+      '<button class="modal-close-btn" onclick="closeModal()">Close</button>';
+  } else if (modalState === 'sendall-confirm') {
     box.innerHTML =
       '<div class="modal-icon" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);">📤</div>' +
       '<div class="modal-title">Send All Reports?</div>' +
-      '<div class="modal-message">Sends a personalized daily report to every consultant audited today. This can take 30–90 seconds.</div>' +
-      '<div class="modal-btn-row">' +
-        '<button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>' +
-        '<button class="modal-close-btn" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);" onclick="executeSendAll()">Send All</button>' +
-      '</div>';
-  } else if (state === 'sendall-done') {
+      '<div class="modal-message">Sends a personalized daily report to every consultant audited today. Takes 30–90 seconds.</div>' +
+      '<div class="modal-btn-row"><button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>' +
+      '<button class="modal-close-btn" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);" onclick="executeSendAll()">Send All</button></div>';
+  } else if (modalState === 'sendall-done') {
+    const r = extra;
     box.innerHTML =
       '<div class="modal-icon">✓</div>' +
       '<div class="modal-title">All Reports Sent</div>' +
-      '<div class="modal-message">Personalized reports dispatched for all consultants audited today.</div>' +
-      '<div class="modal-timestamp">Completed at ' + extra + '</div>' +
+      '<div class="modal-result-box">' +
+      '<strong>Total consultants:</strong> ' + (r.totalConsultants || 0) + '<br>' +
+      '<strong>Sent:</strong> ' + (r.sent ? r.sent.join(', ') || 'None' : 'None') + '<br>' +
+      '<strong>Skipped (already sent):</strong> ' + (r.skipped ? r.skipped.join(', ') || 'None' : 'None') + '<br>' +
+      (r.failed && r.failed.length ? '<strong style="color:var(--red)">Failed:</strong> ' + r.failed.join(', ') + '<br>' : '') +
+      '</div>' +
       '<button class="modal-close-btn" onclick="closeModal()">Done</button>';
   }
   modal.classList.add('show');
@@ -788,25 +799,54 @@ function showModal(state, extra) {
 
 function closeModal() { document.getElementById('modal').classList.remove('show'); }
 
-function executeFinish() {
+function setFinishing(on) {
+  isFinishing = on;
+  ['finishBtn','topFinishBtn','topSendAllBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.disabled = on;
+  });
+}
+
+async function executeFinish() {
   if (!pendingFinish) return;
   showModal('sending');
-  isFinishing = true;
-  ['finishBtn','topFinishBtn'].forEach(id => document.getElementById(id).disabled = true);
+  setFinishing(true);
 
   const todayStr = new Date().toLocaleDateString('en-GB');
-  fetch(APPS_SCRIPT_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'finishDay', consultant: pendingFinish.consultant, auditDate: todayStr, auditor: pendingFinish.auditor })
-  }).catch(err => console.error('Finish error:', err));
 
-  setTimeout(() => {
-    const sentAt = new Date().toLocaleTimeString();
-    showModal('success', sentAt);
-    isFinishing = false;
-    ['finishBtn','topFinishBtn'].forEach(id => document.getElementById(id).disabled = false);
-  }, 8000);
+  try {
+    const response = await callAppsScript({
+      action:    'finishDay',
+      consultant: pendingFinish.consultant,
+      auditDate:  todayStr,
+      auditor:    pendingFinish.auditor
+    });
+
+    const text = await response.text();
+    console.log('Finish day response:', text);
+
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: 'Bad response: ' + text }; }
+
+    if (data.status === 'success') {
+      showModal('success', {
+        sentAt:          new Date().toLocaleTimeString(),
+        auditsProcessed: data.auditsProcessed || 0,
+        criticalCount:   data.criticalCount   || 0
+      });
+    } else if (data.status === 'already_sent') {
+      showModal('finish-error', 'Report already sent today for ' + pendingFinish.consultant + '. Clear sent keys if you need to resend.');
+    } else if (data.status === 'no_audits') {
+      showModal('finish-error', 'No audits found for ' + pendingFinish.consultant + ' today (' + todayStr + '). Make sure audits are submitted first.');
+    } else {
+      showModal('finish-error', data.message || 'Unknown error. Check Apps Script Executions log.');
+    }
+  } catch (err) {
+    console.error('Finish error:', err);
+    showModal('finish-error', 'Network error: ' + err.message);
+  } finally {
+    setFinishing(false);
+  }
 }
 
 // ══ SEND ALL ══
@@ -817,27 +857,37 @@ function sendAllReports() {
   showModal('sendall-confirm');
 }
 
-function executeSendAll() {
+async function executeSendAll() {
   const auditor = getPinned('auditor');
-  isFinishing = true;
-  ['finishBtn','topFinishBtn','topSendAllBtn'].forEach(id => document.getElementById(id).disabled = true);
+  setFinishing(true);
 
   const box = document.getElementById('modalBox');
-  box.innerHTML = '<div class="big-spinner" style="border-top-color:#f59e0b;"></div><div class="modal-title">Sending All Reports...</div><div class="modal-message">This can take 30–90 seconds depending on how many consultants were audited today.</div>';
+  box.innerHTML = '<div class="big-spinner" style="border-top-color:#f59e0b;"></div>' +
+    '<div class="modal-title">Sending All Reports...</div>' +
+    '<div class="modal-message">This takes 30–90 seconds. Please wait.</div>';
 
   const todayStr = new Date().toLocaleDateString('en-GB');
-  fetch(APPS_SCRIPT_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'sendAllReports', auditDate: todayStr, auditor })
-  }).catch(err => console.error('Send all error:', err));
 
-  setTimeout(() => {
-    const sentAt = new Date().toLocaleTimeString();
-    showModal('sendall-done', sentAt);
-    isFinishing = false;
-    ['finishBtn','topFinishBtn','topSendAllBtn'].forEach(id => document.getElementById(id).disabled = false);
-  }, 45000);
+  try {
+    const response = await callAppsScript({
+      action:    'sendAllReports',
+      auditDate:  todayStr,
+      auditor
+    });
+
+    const text = await response.text();
+    console.log('Send all response:', text);
+
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: text }; }
+
+    showModal('sendall-done', data);
+  } catch (err) {
+    console.error('Send all error:', err);
+    showModal('finish-error', 'Network error: ' + err.message);
+  } finally {
+    setFinishing(false);
+  }
 }
 
 // ══ RESET ══
