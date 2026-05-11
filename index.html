@@ -727,7 +727,8 @@ async function submitAudit() {
     let data;
     try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
 
-    if (data.status === 'success' || data.ok === true) {
+    // Change back to:
+if (data.status === 'success') {
       const msg = opaque
         ? '✓ Audit sent to sheet! (CORS opaque — check sheet to confirm)'
         : '✓ Audit saved to RAW AUDIT NEW!';
