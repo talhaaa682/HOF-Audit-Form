@@ -16,7 +16,7 @@
   --radius:14px;--radius-sm:8px;--topbar-h:60px;
 }
 .t-light{
-  --bg:#f0f4ff;--surface:#ffffff;--surface2:#f4f6ff;--surface3:#eceffe;
+  --bg:#f0f4ff;--surface:#ffffff;--surface2:#f4f6ff;--surface3:#eceffe;f
   --border:#d8ddf5;--border2:#e5e8f8;
   --accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,0.15);
   --text:#1a1d35;--text2:#5a60a0;--text3:#9ca0c8;
@@ -366,7 +366,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 // ══════════════════════════════════════════
 // CONFIG — update URL after each redeployment
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwi_b9zTm_p9tOuD6Vai2uQ54WkCMMKIgxwrR1B4_DP9aK4UPWIEj5LuPp1wJkw3xW0fw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXhFO-rMoOvTLraul7ihJpBz7xgPOPcRWC2sJH2hbdYto0e09WVDPcEB3qinV6tNTfmw/exec';
 const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
 
 const CONSULTANTS = [
@@ -727,7 +727,7 @@ async function submitAudit() {
     let data;
     try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
 
-    if (data.status === 'success') {
+    if (data.status === 'success' || data.ok === true) {
       const msg = opaque
         ? '✓ Audit sent to sheet! (CORS opaque — check sheet to confirm)'
         : '✓ Audit saved to RAW AUDIT NEW!';
