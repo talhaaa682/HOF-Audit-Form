@@ -432,27 +432,26 @@ let isDark = false, isSubmitting = false, isFinishing = false;
 // Fallback: no-cors fetch — data IS sent to Apps Script even though the
 //           response body is unreadable (opaque). We treat opaque = success.
 // ══════════════════════════════════════════
+// REPLACE your old callAppsScript with this version
 async function callAppsScript(params) {
-  const qs = Object.entries(params)
-    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
-    .join('&');
-  const url = APPS_SCRIPT_URL + '?' + qs;
+  const formData = new FormData();
+  Object.entries(params).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
 
   try {
-    const res  = await fetch(url, { redirect: 'follow' });
-    const text = await res.text();
-    console.log('[callAppsScript] CORS fetch OK:', text.slice(0, 200));
-    return { text, opaque: false };
-  } catch (corsErr) {
-    // CORS or network blocked reading the response — retry with no-cors.
-    // Apps Script still receives and processes the request.
-    console.warn('[callAppsScript] CORS read failed, retrying no-cors:', corsErr.message);
-    try {
-      await fetch(url, { mode: 'no-cors', redirect: 'follow' });
-    } catch (e) {
-      throw new Error('Request failed completely: ' + e.message);
-    }
-    return { text: JSON.stringify({ status: 'success', _via: 'no-cors' }), opaque: true };
+    // This sends the data to your /exec URL
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: formData,
+      mode: 'no-cors' // This prevents CORS errors from stopping the submission
+    });
+
+    console.log('Data sent to sheet!');
+    return { status: 'success', opaque: true };
+  } catch (e) {
+    console.error('Submission failed:', e);
+    throw e;
   }
 }
 
