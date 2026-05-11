@@ -54,8 +54,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .btn-finish:hover{background:rgba(34,197,94,0.2);transform:translateY(-1px)}
 .btn-sendall{border:1px solid #f59e0b;background:rgba(245,158,11,0.12);color:#f59e0b}
 .btn-sendall:hover{background:rgba(245,158,11,0.2);transform:translateY(-1px)}
-.btn-tag{border:1px solid #f59e0b;background:rgba(245,158,11,0.12);color:#f59e0b}
-.btn-tag:hover{background:rgba(245,158,11,0.2);transform:translateY(-1px)}
 .btn-submit{border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
   box-shadow:0 2px 16px var(--accent-glow)}
 .btn-submit:hover{transform:translateY(-1px);box-shadow:0 4px 24px var(--accent-glow)}
@@ -178,11 +176,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif}
 .btn-finish-main:hover{background:rgba(34,197,94,0.2);transform:translateY(-2px)}
 .btn-finish-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-tag-main{padding:13px 24px;border-radius:var(--radius-sm);border:1px solid #f59e0b;
-  background:rgba(245,158,11,0.12);color:#f59e0b;font-size:14px;font-weight:700;letter-spacing:0.04em;
-  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif}
-.btn-tag-main:hover{background:rgba(245,158,11,0.2);transform:translateY(-2px)}
-.btn-tag-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
 
 /* ── BREAKDOWN ── */
 .breakdown-title{font-size:10px;color:var(--text2);margin-bottom:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
@@ -234,7 +227,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 @media(max-width:540px){.fields-row{grid-template-columns:1fr}.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
 </style>
 <base target="_blank">
-<base target="_blank">
 </head>
 <body class="t-light">
 
@@ -251,7 +243,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <button class="topbar-btn btn-theme" id="themeBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
     <button class="topbar-btn btn-finish" id="topFinishBtn" onclick="finishDayAudits()">✓ Finish Day &amp; Send Report</button>
     <button class="topbar-btn btn-sendall" id="topSendAllBtn" onclick="sendAllReports()">✈ Send All Reports</button>
-    <button class="topbar-btn btn-tag" id="topTagBtn" onclick="tagCase()">🏷️ Tag Case</button>
     <button class="topbar-btn btn-submit" id="topSubmitBtn" onclick="submitAudit()">↑ Submit Audit</button>
   </div>
 </div>
@@ -328,7 +319,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="section-header" onclick="toggleSection('sec-attributes')">
         <div class="section-header-left">
           <span class="section-icon">⚖</span>
-          <div><div class="section-title">Audit Attributes — 12.5 Points Each</div><div class="section-subtitle">Call · Whats· Email · Documentation · Lead Stage · Deal · Task · Follow Up</div></div>
+          <div><div class="section-title">Audit Attributes — 12.5 Points Each</div><div class="section-subtitle">Call · WhatsApp · Email · Documentation · Lead Stage · Deal · Task · Follow Up</div></div>
         </div>
         <span class="chevron">▾</span>
       </div>
@@ -341,7 +332,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <button type="button" class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
       <button type="button" class="btn-main" id="submitBtn" onclick="submitAudit()">⬆ Submit to Sheet</button>
       <button type="button" class="btn-finish-main" id="finishBtn" onclick="finishDayAudits()">✓ Finish Day &amp; Send Report</button>
-      <button type="button" class="btn-tag-main" id="tagBtn" onclick="tagCase()">🏷️ Tag Case</button>
     </div>
     <div class="submit-status" id="submitStatus"></div>
   </div>
@@ -376,7 +366,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 // ══════════════════════════════════════════
 // CONFIG — update URL after each redeployment
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxClqaVfC7yrnCAvt5AE4izmk8TlYKl5G4lHl3JVPtYjwXGVg5IwBziCQYmQpIT24AWhg/exec';
+const APPS_SCRIPT_URL = 'https://app.hubspot.com/contacts/23735726/record/0-1/204526523315?eschref=%2Fcontacts%2F23735726%2Fobjects%2F0-1%2Fviews%2Fall%2Flist';
 const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
 
 const CONSULTANTS = [
@@ -407,8 +397,8 @@ const CONSULTANTS = [
 const ATTRIBUTES = [
   { id:'call',         letter:'A', name:'Call Error',          icon:'📞', weight:12.5, desc:'Call logged in HubSpot with proper description',
     errors:['Call Logged','Call Description'] },
-  { id:'whatsapp',     letter:'B', name:'WhatsError',      icon:'💬', weight:12.5, desc:'Whatsused and logged when required',
-    errors:['WhatsUsed (when required)','WhatsLogged in HubSpot','WhatsNote (if unavailable)'] },
+  { id:'whatsapp',     letter:'B', name:'WhatsApp Error',      icon:'💬', weight:12.5, desc:'WhatsApp used and logged when required',
+    errors:['WhatsApp Used (when required)','WhatsApp Logged in HubSpot','WhatsApp Note (if unavailable)'] },
   { id:'email',        letter:'C', name:'Email Error',         icon:'✉️', weight:12.5, desc:'Email sent professionally with proper signature',
     errors:['Sent (when required)','Professional (no AI/emojis)','Company Signature Used'] },
   { id:'documentation',letter:'D', name:'Documentation Error', icon:'📝', weight:12.5, desc:'Description, properties, and outcome recorded',
@@ -524,7 +514,7 @@ function renderAttributes() {
     container.appendChild(div);
   });
   document.querySelectorAll('.applicability-toggle button').forEach(b =>
-    b.addEventListener('click', () => toggleApplicability(b.dataset.attr, b.dataset.=== 'true')));
+    b.addEventListener('click', () => toggleApplicability(b.dataset.attr, b.dataset.app === 'true')));
   document.querySelectorAll('.chip-btn').forEach(b =>
     b.addEventListener('click', () => toggleMark(b.dataset.attr, b.dataset.err, b.dataset.mark)));
 }
@@ -534,9 +524,9 @@ function toggleApplicability(attrId, applicable) {
   if (!applicable) Object.keys(state[attrId].marks).forEach(k => state[attrId].marks[k] = null);
   const card = document.getElementById('attr-' + attrId);
   card.querySelectorAll('.applicability-toggle button').forEach(b => {
-    b.classList.toggle('active', b.dataset.=== String(applicable));
-    b.classList.toggle('applicable', b.dataset.=== 'true');
-    b.classList.toggle('not-applicable', b.dataset.=== 'false');
+    b.classList.toggle('active', b.dataset.app === String(applicable));
+    b.classList.toggle('applicable', b.dataset.app === 'true');
+    b.classList.toggle('not-applicable', b.dataset.app === 'false');
   });
   card.classList.toggle('na-state', !applicable);
   card.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
@@ -897,75 +887,6 @@ async function executeSendAll() {
     showModal('finish-error', 'Network error: ' + err.message);
   } finally {
     setFinishing(false);
-  }
-}
-
-
-// ══ TAG CASE — save to Tagged Cases tab ══
-function setTagging(on) {
-  isSubmitting = on;
-  ['tagBtn','topTagBtn'].forEach(id => {
-    const b = document.getElementById(id);
-    if (!b) return;
-    b.disabled = on;
-    b.innerHTML = on ? '<div class="spinner" style="border-top-color:#f59e0b;"></div> Tagging...' : (id === 'tagBtn' ? '🏷️ Tag Case' : '🏷️ Tag Case');
-  });
-}
-
-async function tagCase() {
-  if (isSubmitting) return;
-
-  const consultant = getPinned('consultant');
-  const auditor    = getPinned('auditor');
-  const caseLink   = document.getElementById('caseLink').value.trim();
-  const comments   = document.getElementById('comments').value.trim();
-
-  if (!consultant || !auditor || !caseLink) {
-    showToast('⚠️ Fill in Consultant, Auditor, and Case Link to tag.', 'error');
-    return;
-  }
-
-  const cObj = CONSULTANTS.find(c => c.name === consultant);
-  const todayStr = new Date().toLocaleDateString('en-GB');
-  const nowStr   = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-
-  const params = {
-    action:           'tagCase',
-    consultant:       consultant,
-    consultantEmail:  cObj ? cObj.email : '',
-    caseLink:         caseLink,
-    comments:         comments,
-    tagDate:          todayStr,
-    tagTime:          nowStr,
-    auditor:          auditor
-  };
-
-  setTagging(true);
-  showStatus('🏷️ Tagging case...', 'loading');
-
-  try {
-    const response = await callAppsScript(params);
-    const text = await response.text();
-    console.log('Tag response:', text);
-
-    let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
-
-    if (data.status === 'success') {
-      showStatus('✓ Case tagged in Tagged Cases tab!', 'success');
-      showToast('✓ Tagged: ' + consultant, 'success');
-      document.getElementById('caseLink').value = '';
-      document.getElementById('comments').value = '';
-    } else {
-      showStatus('⚠️ ' + (data.message || 'Tag failed'), 'error');
-      showToast('⚠️ Tag failed: ' + (data.message || 'check console'), 'error');
-    }
-  } catch (err) {
-    console.error('Tag error:', err);
-    showStatus('⚠️ Network error — check console', 'error');
-    showToast('⚠️ Network error', 'error');
-  } finally {
-    setTagging(false);
   }
 }
 
