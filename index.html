@@ -328,7 +328,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="section-header" onclick="toggleSection('sec-attributes')">
         <div class="section-header-left">
           <span class="section-icon">⚖</span>
-          <div><div class="section-title">Audit Attributes — 12.5 Points Each</div><div class="section-subtitle">Call · WhatsApp · Email · Documentation · Lead Stage · Deal · Task · Follow Up</div></div>
+          <div><div class="section-title">Audit Attributes — 12.5 Points Each</div><div class="section-subtitle">Call · Whats· Email · Documentation · Lead Stage · Deal · Task · Follow Up</div></div>
         </div>
         <span class="chevron">▾</span>
       </div>
@@ -376,7 +376,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 // ══════════════════════════════════════════
 // CONFIG — update URL after each redeployment
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLZb99osg4kjAiGeiNL1HHbGtfw7Fp89ut8-WX_pQLlBG9amzy9Uqrn1XEeW10cs7AMw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxClqaVfC7yrnCAvt5AE4izmk8TlYKl5G4lHl3JVPtYjwXGVg5IwBziCQYmQpIT24AWhg/exec';
 const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
 
 const CONSULTANTS = [
@@ -407,8 +407,8 @@ const CONSULTANTS = [
 const ATTRIBUTES = [
   { id:'call',         letter:'A', name:'Call Error',          icon:'📞', weight:12.5, desc:'Call logged in HubSpot with proper description',
     errors:['Call Logged','Call Description'] },
-  { id:'whatsapp',     letter:'B', name:'WhatsApp Error',      icon:'💬', weight:12.5, desc:'WhatsApp used and logged when required',
-    errors:['WhatsApp Used (when required)','WhatsApp Logged in HubSpot','WhatsApp Note (if unavailable)'] },
+  { id:'whatsapp',     letter:'B', name:'WhatsError',      icon:'💬', weight:12.5, desc:'Whatsused and logged when required',
+    errors:['WhatsUsed (when required)','WhatsLogged in HubSpot','WhatsNote (if unavailable)'] },
   { id:'email',        letter:'C', name:'Email Error',         icon:'✉️', weight:12.5, desc:'Email sent professionally with proper signature',
     errors:['Sent (when required)','Professional (no AI/emojis)','Company Signature Used'] },
   { id:'documentation',letter:'D', name:'Documentation Error', icon:'📝', weight:12.5, desc:'Description, properties, and outcome recorded',
@@ -524,7 +524,7 @@ function renderAttributes() {
     container.appendChild(div);
   });
   document.querySelectorAll('.applicability-toggle button').forEach(b =>
-    b.addEventListener('click', () => toggleApplicability(b.dataset.attr, b.dataset.app === 'true')));
+    b.addEventListener('click', () => toggleApplicability(b.dataset.attr, b.dataset.=== 'true')));
   document.querySelectorAll('.chip-btn').forEach(b =>
     b.addEventListener('click', () => toggleMark(b.dataset.attr, b.dataset.err, b.dataset.mark)));
 }
@@ -534,9 +534,9 @@ function toggleApplicability(attrId, applicable) {
   if (!applicable) Object.keys(state[attrId].marks).forEach(k => state[attrId].marks[k] = null);
   const card = document.getElementById('attr-' + attrId);
   card.querySelectorAll('.applicability-toggle button').forEach(b => {
-    b.classList.toggle('active', b.dataset.app === String(applicable));
-    b.classList.toggle('applicable', b.dataset.app === 'true');
-    b.classList.toggle('not-applicable', b.dataset.app === 'false');
+    b.classList.toggle('active', b.dataset.=== String(applicable));
+    b.classList.toggle('applicable', b.dataset.=== 'true');
+    b.classList.toggle('not-applicable', b.dataset.=== 'false');
   });
   card.classList.toggle('na-state', !applicable);
   card.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
