@@ -376,7 +376,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 // ══════════════════════════════════════════
 // CONFIG — update URL after each redeployment
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwd3hls-5u2rmQG8QBGfLgbtAcQgrWb2lkJQh3yBjBVpD4VySSxl0s1wepnvv2NkVa1/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLZb99osg4kjAiGeiNL1HHbGtfw7Fp89ut8-WX_pQLlBG9amzy9Uqrn1XEeW10cs7AMw/exec';
 const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
 
 const CONSULTANTS = [
@@ -442,7 +442,12 @@ function callAppsScript(params) {
   const url = APPS_SCRIPT_URL + '?' + Object.entries(params)
     .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
     .join('&');
-  return fetch(url, { method: 'GET' });
+  // Add cache-buster to prevent browser extension caching
+  const urlWithCache = url + '&_cb=' + Date.now();
+  return fetch(urlWithCache, { 
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
+  });
 }
 
 // ══ THEME ══
@@ -712,10 +717,16 @@ async function submitAudit() {
   try {
     const response = await callAppsScript(params);
     const text = await response.text();
-    console.log('Submit response:', text);
+    console.log('Submit response raw:', text);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
+    try { 
+      const cleanText = text.replace(/^[^\{]*/, '').replace(/[^\}]*$/, '');
+      data = JSON.parse(cleanText); 
+    } catch(e) { 
+      console.error('Parse error:', e, 'Raw:', text);
+      data = { status: 'error', message: 'Invalid response from server' }; 
+    }
 
     if (data.status === 'success') {
       showStatus('✓ Audit saved to RAW AUDIT NEW!', 'success');
@@ -833,10 +844,16 @@ async function executeFinish() {
     });
 
     const text = await response.text();
-    console.log('Finish day response:', text);
+    console.log('Finish day response raw:', text);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: 'Bad response: ' + text }; }
+    try { 
+      const cleanText = text.replace(/^[^\{]*/, '').replace(/[^\}]*$/, '');
+      data = JSON.parse(cleanText); 
+    } catch(e) { 
+      console.error('Parse error:', e, 'Raw:', text);
+      data = { status: 'error', message: 'Invalid response from server' }; 
+    }
 
     if (data.status === 'success') {
       showModal('success', {
@@ -886,10 +903,16 @@ async function executeSendAll() {
     });
 
     const text = await response.text();
-    console.log('Send all response:', text);
+    console.log('Send all response raw:', text);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: text }; }
+    try { 
+      const cleanText = text.replace(/^[^\{]*/, '').replace(/[^\}]*$/, '');
+      data = JSON.parse(cleanText); 
+    } catch(e) { 
+      console.error('Parse error:', e, 'Raw:', text);
+      data = { status: 'error', message: 'Invalid response from server' }; 
+    }
 
     showModal('sendall-done', data);
   } catch (err) {
@@ -945,10 +968,17 @@ async function tagCase() {
   try {
     const response = await callAppsScript(params);
     const text = await response.text();
-    console.log('Tag response:', text);
+    console.log('Tag response raw:', text);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
+    try { 
+      // Handle case where response might be wrapped by extensions
+      const cleanText = text.replace(/^[^\{]*/, '').replace(/[^\}]*$/, '');
+      data = JSON.parse(cleanText); 
+    } catch(e) { 
+      console.error('Parse error:', e, 'Raw:', text);
+      data = { status: 'error', message: 'Invalid response from server' }; 
+    }
 
     if (data.status === 'success') {
       showStatus('✓ Case tagged in Tagged Cases tab!', 'success');
