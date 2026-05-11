@@ -1,711 +1,989 @@
-/**
- * HOF Migration Compliance Audit — Apps Script Backend (v22)
- * Tab: RAW AUDIT NEW
- *
- * ROOT CAUSE FIX in v22:
- *  - Apps Script cannot read JSON POST bodies from external origins (CORS limitation)
- *  - All requests now handled via doGet() with URL query parameters
- *  - Frontend sends GET requests with params encoded in the URL
- *  - This is the only 100% reliable method for external → Apps Script communication
- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOF Compliance Audit — Migration Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0f1e;--surface:#111827;--surface2:#1a2236;--surface3:#212d45;
+  --border:#263352;--border2:#1e2a44;
+  --accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,0.25);
+  --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --text:#e2e8f8;--text2:#8b94b8;--text3:#4a5280;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
+  --radius:14px;--radius-sm:8px;--topbar-h:60px;
+}
+.t-light{
+  --bg:#f0f4ff;--surface:#ffffff;--surface2:#f4f6ff;--surface3:#eceffe;
+  --border:#d8ddf5;--border2:#e5e8f8;
+  --accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,0.15);
+  --text:#1a1d35;--text2:#5a60a0;--text3:#9ca0c8;
+  --shadow:0 4px 20px rgba(0,0,0,0.1)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .4s,color .3s}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);
+  background-size:48px 48px;opacity:0.3}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,var(--accent-glow),transparent 70%)}
 
-// ============== CONFIG ==============
-var CONFIG = {
-  SHEET_ID:                  '1VeCyEXP8uXIMCMhaJm2xoKsqSBeeXKQZY9PZN23s0P0',
-  TAB_NAME:                  'RAW AUDIT NEW',
-  MANAGER_EMAIL:             'farazjamal@hofmigration.com',
-  CC_CONSULTANT_ON_ALERT:    true,
-  DAILY_VIOLATION_THRESHOLD: 5
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:200;height:var(--topbar-h);background:var(--surface);
+  border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;backdrop-filter:blur(20px);
+  box-shadow:0 1px 0 var(--border),0 4px 24px rgba(0,0,0,0.4)}
+.topbar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo-title{font-size:13px;font-weight:800;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase}
+.logo-sub{font-size:9px;font-weight:500;color:var(--text3);letter-spacing:0.14em;text-transform:uppercase;margin-top:3px}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:0.14em;
+  color:var(--green);text-transform:uppercase;background:rgba(34,197,94,0.08);
+  border:1px solid rgba(34,197,94,0.2);padding:3px 9px;border-radius:20px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 4px var(--green)}50%{opacity:0.3;box-shadow:none}}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar-btn{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:9px;
+  font-size:12px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;
+  white-space:nowrap;font-family:'Inter',sans-serif}
+.topbar-btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.btn-theme{border:1px solid var(--border);background:var(--surface2);color:var(--text2)}
+.btn-theme:hover{border-color:var(--accent);color:var(--accent);background:var(--surface3)}
+.btn-finish{border:1px solid var(--green);background:rgba(34,197,94,0.12);color:var(--green)}
+.btn-finish:hover{background:rgba(34,197,94,0.2);transform:translateY(-1px)}
+.btn-sendall{border:1px solid #f59e0b;background:rgba(245,158,11,0.12);color:#f59e0b}
+.btn-sendall:hover{background:rgba(245,158,11,0.2);transform:translateY(-1px)}
+.btn-tag{border:1px solid #f59e0b;background:rgba(245,158,11,0.12);color:#f59e0b}
+.btn-tag:hover{background:rgba(245,158,11,0.2);transform:translateY(-1px)}
+.btn-submit{border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  box-shadow:0 2px 16px var(--accent-glow)}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 4px 24px var(--accent-glow)}
+
+/* ── LAYOUT ── */
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - var(--topbar-h));align-items:start}
+.main-col{padding:28px 24px 80px;min-width:0}
+.sidebar-col{position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto;
+  padding:20px 16px 40px;border-left:1px solid var(--border);background:var(--surface);
+  display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+
+/* ── SCORE CARD ── */
+.score-header{padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:center;position:relative;overflow:hidden}
+.score-header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--accent-glow),transparent 70%);pointer-events:none}
+.score-label-top{font-size:9px;font-weight:700;letter-spacing:0.18em;color:var(--text3);text-transform:uppercase}
+.score-big{font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:700;line-height:1;
+  color:var(--accent);text-shadow:0 0 24px var(--accent-glow);margin:8px 0 4px;transition:color .4s;letter-spacing:-1px}
+.score-ring-wrap{margin:14px auto 0;width:70px;height:70px}
+.score-ring{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:6}
+.ring-fg{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s ease,stroke .4s;filter:drop-shadow(0 0 5px var(--accent))}
+.critical-banner{margin-top:14px;padding:11px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
+  border-radius:8px;color:var(--red);font-size:11px;font-weight:700;text-align:center;display:none}
+.critical-banner.active{display:block}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:24px}
+.page-title{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;letter-spacing:0.01em}
+.page-sub{font-size:12px;color:var(--text2);margin-top:5px;line-height:1.5}
+
+/* ── SECTION ── */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+.section:hover{border-color:var(--accent);box-shadow:var(--shadow),0 0 0 1px var(--accent-glow)}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;
+  background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.section-header-left{display:flex;align-items:center;gap:10px}
+.section-icon{font-size:16px}
+.section-title{font-size:13px;font-weight:700;letter-spacing:0.02em}
+.section-subtitle{font-size:10px;color:var(--text3);margin-top:2px}
+.chevron{font-size:11px;color:var(--text3);transition:transform .3s}
+.section.collapsed .chevron{transform:rotate(-90deg)}
+.section-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.section.collapsed .section-body{display:none}
+
+/* ── FIELDS ── */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
+.field label .req{color:var(--red)}
+.field select,.field input,.field textarea{background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;
+  font-family:'Inter',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.field textarea{min-height:80px;resize:vertical}
+.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── PIN FIELDS ── */
+.field-with-pin{display:flex;flex-direction:column;gap:6px;position:relative}
+.field-label-row{display:flex;align-items:center;justify-content:space-between}
+.field-label-row label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.04em;display:flex;align-items:center;gap:6px;flex-wrap:wrap;text-transform:uppercase}
+.pin-btn{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);
+  color:var(--text3);font-size:9px;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all .2s;text-transform:uppercase;flex-shrink:0;font-family:'Inter',sans-serif}
+.pin-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pin-btn.pinned{border-color:var(--yellow);color:var(--yellow);background:rgba(245,158,11,0.12);box-shadow:0 0 8px rgba(245,158,11,0.2)}
+.pinned-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--yellow);
+  background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:2px 8px;border-radius:12px;margin-left:6px;letter-spacing:0.06em}
+.field-with-pin select,.field-with-pin input{background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;width:100%}
+.field-with-pin select:focus,.field-with-pin input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.field-with-pin.is-pinned select,.field-with-pin.is-pinned input{display:none}
+.pinned-val-display{font-size:12px;color:var(--yellow);background:rgba(245,158,11,0.08);
+  border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-sm);padding:9px 14px;font-weight:600;display:none}
+.field-with-pin.is-pinned .pinned-val-display{display:block}
+
+/* ── ATTRIBUTES ── */
+.attribute{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:border-color .2s,opacity .2s}
+.attribute.has-error{border-color:rgba(245,158,11,0.4)}
+.attribute.has-critical{border-color:var(--red)}
+.attribute.na-state{opacity:.45}
+.attr-header{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;margin-bottom:12px}
+.attr-letter{width:28px;height:28px;background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.attr-info{flex:1;min-width:0}
+.attr-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.attr-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.attr-points-badge{background:rgba(99,102,241,0.15);padding:5px 11px;border-radius:6px;font-size:11px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.applicability-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:2px}
+.applicability-toggle button{padding:4px 8px;background:transparent;border:none;color:var(--text3);border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:0.04em;white-space:nowrap}
+.applicability-toggle button:hover{color:var(--text)}
+.applicability-toggle button.active.applicable{background:rgba(99,102,241,0.2);color:var(--accent)}
+.applicability-toggle button.active.not-applicable{background:rgba(139,155,180,0.15);color:var(--text2)}
+.error-rows{display:flex;flex-direction:column;gap:6px}
+.error-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;
+  padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;transition:border-color .15s}
+.error-row.error-mark{border-color:var(--yellow)}
+.error-row.critical-mark{border-color:var(--red)}
+.error-label{font-size:12px;color:var(--text);font-weight:500}
+.chip-btn{width:40px;height:30px;border-radius:7px;border:1px solid var(--border);
+  background:linear-gradient(180deg,var(--surface2) 0%,var(--surface) 100%);
+  color:var(--text3);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 0 #060912,0 6px 14px rgba(0,0,0,0.4);transition:all .12s ease-out;user-select:none}
+.chip-btn:hover{transform:translateY(-1px);color:var(--text)}
+.chip-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #060912}
+.chip-btn.error-chip.active{background:linear-gradient(180deg,var(--yellow) 0%,#c97500 100%);border-color:#d97706;color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transform:translateY(2px)}
+.chip-btn.critical-chip.active{background:linear-gradient(180deg,var(--red) 0%,#b91c1c 100%);border-color:#dc2626;color:#fff;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);transform:translateY(2px)}
+.chip-btn.error-chip:hover:not(.active){color:var(--yellow);border-color:var(--yellow)}
+.chip-btn.critical-chip:hover:not(.active){color:var(--red);border-color:var(--red)}
+
+/* ── SUBMIT AREA ── */
+.submit-area{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+.btn-reset{padding:11px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-reset:hover{border-color:var(--red);color:var(--red)}
+.btn-main{flex:1;padding:13px 24px;border-radius:var(--radius-sm);border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:14px;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px var(--accent-glow);font-family:'Inter',sans-serif}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--accent-glow)}
+.btn-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-finish-main{padding:13px 24px;border-radius:var(--radius-sm);border:1px solid var(--green);
+  background:rgba(34,197,94,0.12);color:var(--green);font-size:14px;font-weight:700;letter-spacing:0.04em;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif}
+.btn-finish-main:hover{background:rgba(34,197,94,0.2);transform:translateY(-2px)}
+.btn-finish-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-tag-main{padding:13px 24px;border-radius:var(--radius-sm);border:1px solid #f59e0b;
+  background:rgba(245,158,11,0.12);color:#f59e0b;font-size:14px;font-weight:700;letter-spacing:0.04em;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif}
+.btn-tag-main:hover{background:rgba(245,158,11,0.2);transform:translateY(-2px)}
+.btn-tag-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ── BREAKDOWN ── */
+.breakdown-title{font-size:10px;color:var(--text2);margin-bottom:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
+.breakdown-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px solid rgba(38,51,82,0.4)}
+.breakdown-item:last-child{border-bottom:none}
+.breakdown-item.na{opacity:.4}
+.breakdown-item.failed{color:var(--red)}
+.breakdown-item .points{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px}
+
+/* ── SPINNER ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite;flex-shrink:0}
+.big-spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:13px 20px;border-radius:11px;font-size:13px;font-weight:600;
+  box-shadow:0 8px 32px rgba(0,0,0,0.35);transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(0.34,1.56,0.64,1);max-width:360px;backdrop-filter:blur(12px)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:var(--green)}
+.toast.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
+.toast.info{background:rgba(99,102,241,0.12);border:1px solid var(--border);color:var(--accent)}
+
+/* ── STATUS BAR ── */
+.submit-status{margin-top:12px;padding:10px;border-radius:8px;font-size:11px;text-align:center;display:none;font-weight:600}
+.submit-status.success{display:block;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.submit-status.error{display:block;background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.submit-status.loading{display:block;background:rgba(99,102,241,.12);color:var(--accent);border:1px solid rgba(99,102,241,.3)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6);text-align:center}
+.modal-icon{width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;font-size:30px}
+.modal-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px}
+.modal-message{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.modal-timestamp{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:10px 14px;margin-bottom:18px;display:inline-block}
+.modal-recipients{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:18px;text-align:left}
+.modal-recipients-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.modal-recipients-list{font-size:12px;color:var(--text);line-height:1.7}
+.modal-recipients-list strong{color:var(--accent)}
+.modal-close-btn{padding:11px 28px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.modal-close-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
+.modal-btn-row{display:flex;gap:10px;justify-content:center}
+.modal-cancel-btn{padding:11px 28px;border-radius:9px;border:1px solid var(--border);background:var(--surface3);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.modal-result-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:18px;text-align:left;font-size:12px;line-height:1.8;color:var(--text)}
+.modal-result-box strong{color:var(--accent)}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar-col{position:static;height:auto;border-left:none;border-top:1px solid var(--border);order:-1;padding:16px}.score-ring-wrap{display:none}}
+@media(max-width:540px){.fields-row{grid-template-columns:1fr}.logo-sub,.live-badge{display:none}.topbar{padding:0 12px}}
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body class="t-light">
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div class="logo-title">HOF Compliance Audit</div>
+      <div class="logo-sub">Migration Team · CRM Quality Control</div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE · SHEET SYNC</div>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-btn btn-theme" id="themeBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
+    <button class="topbar-btn btn-finish" id="topFinishBtn" onclick="finishDayAudits()">✓ Finish Day &amp; Send Report</button>
+    <button class="topbar-btn btn-sendall" id="topSendAllBtn" onclick="sendAllReports()">✈ Send All Reports</button>
+    <button class="topbar-btn btn-tag" id="topTagBtn" onclick="tagCase()">🏷️ Tag Case</button>
+    <button class="topbar-btn btn-submit" id="topSubmitBtn" onclick="submitAudit()">↑ Submit Audit</button>
+  </div>
+</div>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+  <div class="main-col">
+    <div class="page-header">
+      <div class="page-title">⬡ Migration Quality Audit</div>
+      <div class="page-sub">Each attribute worth <strong>12.5 points</strong> · ❌ minor error · ⛔ critical error · Toggle N/A if not applicable · 📌 Pin fields for bulk audits</div>
+    </div>
+
+    <!-- Case Information -->
+    <div class="section" id="sec-case">
+      <div class="section-header" onclick="toggleSection('sec-case')">
+        <div class="section-header-left">
+          <span class="section-icon">◈</span>
+          <div><div class="section-title">Case Information</div><div class="section-subtitle">Consultant · Lead Stage · Auditor · Case Link · Notes</div></div>
+        </div>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="section-body">
+        <div class="fields-row">
+          <div class="field-with-pin" id="pin-wrap-consultant">
+            <div class="field-label-row">
+              <label>Consultant <span class="req">*</span><span class="pinned-badge" id="pin-badge-consultant" style="display:none">📌 PINNED</span></label>
+              <button type="button" class="pin-btn" id="pin-btn-consultant" onclick="togglePin('consultant')">📌 Pin</button>
+            </div>
+            <select id="consultant"></select>
+            <div class="pinned-val-display" id="pin-display-consultant"></div>
+          </div>
+          <div class="field-with-pin" id="pin-wrap-auditor">
+            <div class="field-label-row">
+              <label>Auditor <span class="req">*</span><span class="pinned-badge" id="pin-badge-auditor" style="display:none">📌 PINNED</span></label>
+              <button type="button" class="pin-btn" id="pin-btn-auditor" onclick="togglePin('auditor')">📌 Pin</button>
+            </div>
+            <input type="text" id="auditor" placeholder="Enter your name"/>
+            <div class="pinned-val-display" id="pin-display-auditor"></div>
+          </div>
+        </div>
+        <div class="fields-row">
+          <div class="field-with-pin" id="pin-wrap-leadStage">
+            <div class="field-label-row">
+              <label>Lead Stage <span class="req">*</span><span class="pinned-badge" id="pin-badge-leadStage" style="display:none">📌 PINNED</span></label>
+              <button type="button" class="pin-btn" id="pin-btn-leadStage" onclick="togglePin('leadStage')">📌 Pin</button>
+            </div>
+            <select id="leadStage">
+              <option value="">— Select Lead Stage —</option>
+              <option>No Answer</option><option>Schedule Call Back</option>
+              <option>Qualified CAN</option><option>Qualified AUS</option>
+              <option>USA NIW</option><option>Germany Opportunity Card</option>
+              <option>They Didn't Fill</option><option>Wrong Number</option>
+              <option>Ineligible</option><option>Switched Off</option>
+              <option>Cannot Dial</option><option>Outside GCC</option>
+              <option>Sale</option><option>Already Migrated</option>
+              <option>Started with competitor</option><option>Blank</option>
+            </select>
+            <div class="pinned-val-display" id="pin-display-leadStage"></div>
+          </div>
+          <div class="field">
+            <label>Case Link (HubSpot URL) <span class="req">*</span></label>
+            <input type="url" id="caseLink" placeholder="https://app.hubspot.com/..."/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Comments / Observations</label>
+          <textarea id="comments" placeholder="Optional notes about this case..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Attributes -->
+    <div class="section" id="sec-attributes">
+      <div class="section-header" onclick="toggleSection('sec-attributes')">
+        <div class="section-header-left">
+          <span class="section-icon">⚖</span>
+          <div><div class="section-title">Audit Attributes — 12.5 Points Each</div><div class="section-subtitle">Call · WhatsApp · Email · Documentation · Lead Stage · Deal · Task · Follow Up</div></div>
+        </div>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="section-body">
+        <div id="attributesContainer"></div>
+      </div>
+    </div>
+
+    <div class="submit-area">
+      <button type="button" class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
+      <button type="button" class="btn-main" id="submitBtn" onclick="submitAudit()">⬆ Submit to Sheet</button>
+      <button type="button" class="btn-finish-main" id="finishBtn" onclick="finishDayAudits()">✓ Finish Day &amp; Send Report</button>
+      <button type="button" class="btn-tag-main" id="tagBtn" onclick="tagCase()">🏷️ Tag Case</button>
+    </div>
+    <div class="submit-status" id="submitStatus"></div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-col">
+    <div class="score-header">
+      <div class="score-label-top">Total Score</div>
+      <div class="score-big" id="scoreValue">100</div>
+      <div style="font-size:12px;color:var(--text2)">/ 100</div>
+      <div class="score-ring-wrap">
+        <svg class="score-ring" width="70" height="70" viewBox="0 0 70 70">
+          <circle class="ring-bg" cx="35" cy="35" r="29"/>
+          <circle class="ring-fg" id="ringFg" cx="35" cy="35" r="29" stroke-dasharray="182.2" stroke-dashoffset="0"/>
+        </svg>
+      </div>
+      <div style="margin-top:8px;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.06em" id="scoreBand">PERFECT</div>
+      <div style="margin-top:4px;font-size:10px;color:var(--text3)" id="scoreTagline">All criteria passing</div>
+    </div>
+    <div class="breakdown-title">Score Breakdown</div>
+    <div id="breakdown"></div>
+    <div class="critical-banner" id="criticalBanner">⛔ CRITICAL ERROR — Score forced to 0</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG — update URL after each redeployment
+// ══════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLZb99osg4kjAiGeiNL1HHbGtfw7Fp89ut8-WX_pQLlBG9amzy9Uqrn1XEeW10cs7AMw/exec';
+const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
+
+const CONSULTANTS = [
+  { name:'Talha (Test)',           email:'talha@hofmigration.com' },
+  { name:'Muhammad Bin Atif',      email:'muhammadbinatif@hofmigration.com' },
+  { name:'Aqsa Fareed',            email:'aqsafareed@hofmigration.com' },
+  { name:'Badar Saeed',            email:'badar@hofmigration.com' },
+  { name:'Muhammad Awaad',         email:'awaad@hofmigration.com' },
+  { name:'Muhammad Hanzla',        email:'hanzla@hofmigration.com' },
+  { name:'Tuba',                   email:'tuba@hofmigration.com' },
+  { name:'Mashal Fatima',          email:'mashal@hofmigration.com' },
+  { name:'Muizza',                 email:'muizza@hofmigration.com' },
+  { name:'Sultan Butt',            email:'sultanbutt@hofmigration.com' },
+  { name:'Rabbiya Jillani',        email:'Rabbiya@hofmigration.com' },
+  { name:'Muhammad Diean',         email:'diean@hofmigration.com' },
+  { name:'Muhammad Shahzad Fiaz',  email:'shahzadfiaz@hofmigration.com' },
+  { name:'Fatima Zahid',           email:'fatimazahid@hofmigration.com' },
+  { name:'Ayesha Zahid',           email:'ayeshazahid@hofmigration.com' },
+  { name:'Syed Hussain Ali Haris', email:'Hussainshah@hofmigration.com' },
+  { name:'Ahmad Ali',              email:'ahmada@hofmigration.com' },
+  { name:'Ali Raza Qureshi',       email:'aliraza@hofmigration.com' },
+  { name:'Mishal Naseem',          email:'mishal@hofmigration.com' },
+  { name:'Fahad Butt',             email:'fahad@hofmigration.com' },
+  { name:'Atika Zainab',           email:'atika@hofmigration.com' },
+  { name:'Hamza Mughal',           email:'hamzaazeemi@hofmigration.com' }
+];
+
+const ATTRIBUTES = [
+  { id:'call',         letter:'A', name:'Call Error',          icon:'📞', weight:12.5, desc:'Call logged in HubSpot with proper description',
+    errors:['Call Logged','Call Description'] },
+  { id:'whatsapp',     letter:'B', name:'WhatsApp Error',      icon:'💬', weight:12.5, desc:'WhatsApp used and logged when required',
+    errors:['WhatsApp Used (when required)','WhatsApp Logged in HubSpot','WhatsApp Note (if unavailable)'] },
+  { id:'email',        letter:'C', name:'Email Error',         icon:'✉️', weight:12.5, desc:'Email sent professionally with proper signature',
+    errors:['Sent (when required)','Professional (no AI/emojis)','Company Signature Used'] },
+  { id:'documentation',letter:'D', name:'Documentation Error', icon:'📝', weight:12.5, desc:'Description, properties, and outcome recorded',
+    errors:['Description / Call Notes added','All Required Properties Completed','Outcome'] },
+  { id:'leadStageErr', letter:'E', name:'Lead Stage Error',    icon:'🏷️', weight:12.5, desc:'Lead stage updated correctly per SOP',
+    errors:['Lead Stage Updated After Contact','Qualified Stage Marked','Correct Lead Stage Used (per SOP)'] },
+  { id:'deal',         letter:'F', name:'Deal Error',          icon:'⚡', weight:12.5, desc:'Deal created in correct pipeline if qualified',
+    errors:['Deal Created (if qualified)','Correct Pipeline Selected'] },
+  { id:'task',         letter:'G', name:'Task Error',          icon:'✅', weight:12.5, desc:'Task created, completed timely, type matches request',
+    errors:['Task Created (for callback/follow-up)','Task Completed Timely','Task Type Matches Request'] },
+  { id:'followup',     letter:'H', name:'Follow-up Error',     icon:'🔔', weight:12.5, desc:'Timely contact made with the lead',
+    errors:['No Timely Contact'] }
+];
+
+// ══ STATE ══
+const state = {};
+ATTRIBUTES.forEach(a => {
+  state[a.id] = { applicable: true, marks: {} };
+  a.errors.forEach(e => state[a.id].marks[e] = null);
+});
+const pins = {
+  consultant: { pinned:false, value:'' },
+  leadStage:  { pinned:false, value:'' },
+  auditor:    { pinned:false, value:'' }
 };
+let isDark = false, isSubmitting = false, isFinishing = false;
 
-// ============== ENTRY POINTS ==============
-// All external traffic comes through doGet — POST bodies are unreliable cross-origin
-function doGet(e) {
-  try {
-    Logger.log('=== doGet START ===');
-    var p = (e && e.parameter) ? e.parameter : {};
-    Logger.log('Params: ' + JSON.stringify(p));
-
-    var action = p.action || '';
-
-    if (action === 'ping') {
-      return jsonOut({ status: 'ok', message: 'Web app is running', time: new Date().toISOString() });
-    }
-    if (action === 'finishDay') {
-      return finishDayForConsultant(p.consultant, p.auditDate, p.auditor);
-    }
-    if (action === 'sendAllReports') {
-      return sendAllDailyReports(p.auditDate, p.auditor);
-    }
-    if (action === 'tagCase') {
-      return processTagCase(p);
-    }
-    // Default: process audit submission
-    return processAudit(p);
-
-  } catch (err) {
-    Logger.log('GET ERROR: ' + err.toString());
-    Logger.log('Stack: ' + err.stack);
-    return jsonOut({ status: 'error', message: err.message });
-  }
+// ══ CORE: send GET request to Apps Script ══
+// This is the ONLY reliable way to communicate with Apps Script cross-origin
+function callAppsScript(params) {
+  const url = APPS_SCRIPT_URL + '?' + Object.entries(params)
+    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
+    .join('&');
+  return fetch(url, { method: 'GET' });
 }
 
-// Keep doPost as a fallback but it will likely receive no body
-function doPost(e) {
-  Logger.log('=== doPost called (falling through to doGet handler) ===');
-  return doGet(e);
+// ══ THEME ══
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.className = isDark ? '' : 't-light';
+  document.getElementById('themeBtn').textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
 }
 
-function jsonOut(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-// ============== PROCESS AUDIT ==============
-function processAudit(p) {
-  Logger.log('=== processAudit START ===');
-
-  if (!p.consultant || !p.auditor || !p.leadStage) {
-    Logger.log('ERROR: Missing required fields. Got: consultant=' + p.consultant + ', auditor=' + p.auditor + ', leadStage=' + p.leadStage);
-    return jsonOut({ status: 'error', message: 'Missing required fields: consultant, auditor, leadStage' });
-  }
-
-  var ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  var sheet = ss.getSheetByName(CONFIG.TAB_NAME);
-  if (!sheet) {
-    Logger.log('ERROR: Tab not found: "' + CONFIG.TAB_NAME + '"');
-    return jsonOut({ status: 'error', message: 'Sheet tab not found: ' + CONFIG.TAB_NAME });
-  }
-
-  var todayStr = p.auditDate || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
-
-  var row = [
-    p.consultant           || '',
-    todayStr,
-    p.callError            || '',
-    p.whatsappError        || '',
-    p.emailError           || '',
-    p.documentationError   || '',
-    p.leadStageError       || '',
-    p.dealError            || '',
-    p.taskError            || '',
-    p.followUp             || '',
-    p.comments             || '',
-    p.caseLink             || '',
-    Number(p.totalScore)   || 0,
-    p.auditor              || '',
-    Number(p.violationPoints) || 0,
-    p.severity             || '',
-    p.leadStage            || ''
-  ];
-
-  var lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(15000);
-    sheet.appendRow(row);
-    SpreadsheetApp.flush();
-  } finally {
-    try { lock.releaseLock(); } catch (_) {}
-  }
-
-  Logger.log('Audit saved: ' + p.consultant + ' | Score: ' + p.totalScore + ' | Date: ' + todayStr);
-  return jsonOut({ status: 'success', message: 'Audit recorded', tab: CONFIG.TAB_NAME });
-}
-
-// ============== PROCESS TAG CASE ==============
-function processTagCase(p) {
-  Logger.log('=== processTagCase START ===');
-
-  if (!p.consultant || !p.auditor || !p.caseLink) {
-    Logger.log('ERROR: Missing required fields for tag. Got: consultant=' + p.consultant + ', auditor=' + p.auditor + ', caseLink=' + p.caseLink);
-    return jsonOut({ status: 'error', message: 'Missing required fields: consultant, auditor, caseLink' });
-  }
-
-  var ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  var tagSheet = ss.getSheetByName('Tagged Cases');
-
-  // Create sheet with headers if it doesn't exist
-  if (!tagSheet) {
-    Logger.log('Creating "Tagged Cases" sheet...');
-    tagSheet = ss.insertSheet('Tagged Cases');
-    tagSheet.appendRow([
-      'Date', 'Time', 'Consultant', 'Consultant Email',
-      'Case Link', 'Comments', 'Tagged By (Auditor)'
-    ]);
-    // Format header row
-    var headerRange = tagSheet.getRange(1, 1, 1, 7);
-    headerRange.setFontWeight('bold')
-               .setBackground('#6366f1')
-               .setFontColor('#ffffff')
-               .setHorizontalAlignment('center');
-    tagSheet.setColumnWidth(1, 100);  // Date
-    tagSheet.setColumnWidth(2, 80);   // Time
-    tagSheet.setColumnWidth(3, 180);  // Consultant
-    tagSheet.setColumnWidth(4, 220);  // Consultant Email
-    tagSheet.setColumnWidth(5, 350);  // Case Link
-    tagSheet.setColumnWidth(6, 300);  // Comments
-    tagSheet.setColumnWidth(7, 180);  // Tagged By
-    Logger.log('"Tagged Cases" sheet created with headers.');
-  }
-
-  var todayStr = p.tagDate || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
-  var timeStr  = p.tagTime || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'HH:mm');
-
-  var row = [
-    todayStr,
-    timeStr,
-    p.consultant        || '',
-    p.consultantEmail   || '',
-    p.caseLink          || '',
-    p.comments          || '',
-    p.auditor           || ''
-  ];
-
-  var lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(15000);
-    tagSheet.appendRow(row);
-    SpreadsheetApp.flush();
-  } finally {
-    try { lock.releaseLock(); } catch (_) {}
-  }
-
-  Logger.log('Tag saved: ' + p.consultant + ' | Case: ' + p.caseLink + ' | Date: ' + todayStr);
-  return jsonOut({ status: 'success', message: 'Case tagged in Tagged Cases tab' });
-}
-
-
-// ============== FINISH DAY ==============
-function finishDayForConsultant(consultantName, auditDate, auditorName) {
-  try {
-    Logger.log('=== finishDayForConsultant START ===');
-    Logger.log('consultant="' + consultantName + '", date="' + auditDate + '", auditor="' + auditorName + '"');
-
-    if (!consultantName) {
-      Logger.log('ERROR: No consultant name');
-      return jsonOut({ status: 'error', message: 'Consultant name required' });
-    }
-
-    var ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    var sheet = ss.getSheetByName(CONFIG.TAB_NAME);
-    if (!sheet) {
-      Logger.log('ERROR: Tab not found');
-      return jsonOut({ status: 'error', message: 'Sheet tab not found: ' + CONFIG.TAB_NAME });
-    }
-
-    var todayStr = auditDate || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
-    Logger.log('Using date: ' + todayStr);
-
-    var props   = PropertiesService.getScriptProperties();
-    var sentKey = 'sent_' + String(consultantName).replace(/\s+/g, '_') + '_' + todayStr.replace(/\//g, '-');
-
-    if (props.getProperty(sentKey) === 'sent') {
-      Logger.log('Already sent for: ' + consultantName);
-      return jsonOut({ status: 'already_sent', message: 'Report already sent today for ' + consultantName });
-    }
-
-    var data          = sheet.getDataRange().getValues();
-    var todaysAudits  = [];
-    var criticalCount = 0;
-    var errorCount    = 0;
-    var totalAudits   = 0;
-    var totalScore    = 0;
-    var criticalIssues  = [];
-    var minorIssues     = [];
-    var excellentCases  = [];
-    var allErrorsForFreq = [];
-
-    for (var i = 1; i < data.length; i++) {
-      var rowConsultant = String(data[i][0] || '').trim();
-
-      // Handle date stored as Date object or string
-      var rowDateRaw = data[i][1];
-      var rowDate = '';
-      if (rowDateRaw instanceof Date) {
-        rowDate = Utilities.formatDate(rowDateRaw, Session.getScriptTimeZone(), 'dd/MM/yyyy');
-      } else {
-        rowDate = String(rowDateRaw || '').trim();
-      }
-
-      if (rowConsultant !== consultantName || rowDate !== todayStr) continue;
-
-      totalAudits++;
-      var rowScore  = Number(data[i][12] || 0);
-      totalScore   += rowScore;
-
-      var rowComments = String(data[i][10] || '');
-      var rowCaseLink = String(data[i][11] || '');
-      var isCritical  = (rowScore === 0);
-      if (isCritical) criticalCount++;
-
-      var errorsList = [];
-      [data[i][2], data[i][3], data[i][4], data[i][5],
-       data[i][6], data[i][7], data[i][8], data[i][9]].forEach(function(err) {
-        var s = String(err || '');
-        if (s && s !== 'N/A') {
-          errorsList.push(s);
-          allErrorsForFreq.push(s.replace(/^[\u26D4\u274C]\s*/, '').trim());
-        }
-      });
-
-      var hasMinorError = errorsList.some(function(err) { return err.indexOf('\u274C') === 0; });
-      if (hasMinorError && !isCritical) errorCount++;
-
-      var auditData = {
-        score:      rowScore,
-        caseLink:   rowCaseLink,
-        isCritical: isCritical,
-        errors:     errorsList,
-        comments:   rowComments
-      };
-      todaysAudits.push(auditData);
-
-      if (isCritical)          criticalIssues.push(auditData);
-      else if (hasMinorError)  minorIssues.push(auditData);
-      else if (rowScore >= 90) excellentCases.push(auditData);
-    }
-
-    Logger.log('Scan complete: total=' + totalAudits + ', critical=' + criticalCount + ', errors=' + errorCount);
-
-    if (totalAudits === 0) {
-      Logger.log('No audits found for ' + consultantName + ' on ' + todayStr);
-      return jsonOut({ status: 'no_audits', message: 'No audits found for ' + consultantName + ' on ' + todayStr });
-    }
-
-    var freqMap = {};
-    allErrorsForFreq.forEach(function(e) { if (e) freqMap[e] = (freqMap[e] || 0) + 1; });
-    var frequentErrors = Object.keys(freqMap)
-      .map(function(k) { return { name: k, count: freqMap[k] }; })
-      .sort(function(a, b) { return b.count - a.count; })
-      .slice(0, 5);
-
-    var emailSent = sendComprehensiveReport(
-      consultantName, todayStr, auditorName,
-      todaysAudits, criticalCount, errorCount,
-      totalAudits, totalScore,
-      criticalIssues, minorIssues, excellentCases, frequentErrors
-    );
-
-    if (emailSent) {
-      props.setProperty(sentKey, 'sent');
-      Logger.log('SUCCESS: sentKey set for ' + consultantName);
-    } else {
-      Logger.log('FAILED: Email not sent for ' + consultantName);
-    }
-
-    return jsonOut({
-      status:          emailSent ? 'success' : 'email_failed',
-      message:         emailSent ? 'Daily report sent' : 'Email failed — check Executions log',
-      auditsProcessed: totalAudits,
-      criticalCount:   criticalCount,
-      sentAt:          new Date().toISOString()
-    });
-
-  } catch (err) {
-    Logger.log('CRITICAL ERROR: ' + err.toString());
-    Logger.log('Stack: ' + err.stack);
-    return jsonOut({ status: 'error', message: err.message });
+// ══ PIN ══
+function togglePin(fieldId) {
+  const el    = document.getElementById(fieldId);
+  const wrap  = document.getElementById('pin-wrap-' + fieldId);
+  const btn   = document.getElementById('pin-btn-' + fieldId);
+  const badge = document.getElementById('pin-badge-' + fieldId);
+  const disp  = document.getElementById('pin-display-' + fieldId);
+  const p     = pins[fieldId];
+  if (!p.pinned) {
+    const val = el.value;
+    if (!val || !val.trim()) { showToast('⚠️ Enter a value before pinning.', 'error'); return; }
+    p.value = val; p.pinned = true;
+    disp.textContent = val;
+    wrap.classList.add('is-pinned');
+    btn.classList.add('pinned'); btn.textContent = '📌 Unpin';
+    badge.style.display = 'inline-flex';
+    showToast('📌 ' + fieldId + ' pinned.', 'info');
+  } else {
+    p.pinned = false; p.value = '';
+    wrap.classList.remove('is-pinned');
+    btn.classList.remove('pinned'); btn.textContent = '📌 Pin';
+    badge.style.display = 'none';
+    disp.textContent = '';
+    showToast('🔓 ' + fieldId + ' unpinned.', 'info');
   }
 }
+function getPinned(id) { return pins[id].pinned ? pins[id].value : document.getElementById(id).value; }
 
-// ============== COMPREHENSIVE REPORT EMAIL ==============
-function sendComprehensiveReport(
-  consultantName, todayStr, auditorName,
-  audits, criticalCount, errorCount,
-  totalAudits, totalScore,
-  criticalIssues, minorIssues, excellentCases, frequentErrors
-) {
-  try {
-    Logger.log('=== sendComprehensiveReport START ===');
+// ══ INIT ══
+function init() {
+  const sel = document.getElementById('consultant');
+  sel.innerHTML = '<option value="">— Select Consultant —</option>';
+  CONSULTANTS.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.name; o.textContent = c.name; sel.appendChild(o);
+  });
+  renderAttributes();
+  updateScore();
+}
 
-    var consultantEmail = getConsultantEmail(consultantName);
-    Logger.log('Email for "' + consultantName + '": "' + consultantEmail + '"');
+// ══ RENDER ATTRIBUTES ══
+function renderAttributes() {
+  const container = document.getElementById('attributesContainer');
+  container.innerHTML = '';
+  ATTRIBUTES.forEach(attr => {
+    const div = document.createElement('div');
+    div.className = 'attribute'; div.id = 'attr-' + attr.id;
+    div.innerHTML =
+      '<div class="attr-header">' +
+        '<div class="attr-letter">' + attr.letter + '</div>' +
+        '<div class="attr-info">' +
+          '<div class="attr-name">' + attr.icon + ' ' + attr.name + '</div>' +
+          '<div class="attr-desc">' + attr.desc + '</div>' +
+        '</div>' +
+        '<div class="attr-points-badge" id="points-' + attr.id + '">' + attr.weight + ' / ' + attr.weight + '</div>' +
+        '<div class="applicability-toggle">' +
+          '<button class="active applicable" data-attr="' + attr.id + '" data-app="true">✓ APP</button>' +
+          '<button data-attr="' + attr.id + '" data-app="false">— N/A</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="error-rows">' +
+        attr.errors.map((e, i) =>
+          '<div class="error-row" id="row-' + attr.id + '-' + i + '">' +
+            '<div class="error-label">' + e + '</div>' +
+            '<button class="chip-btn error-chip" data-attr="' + attr.id + '" data-err="' + e + '" data-mark="error" title="Minor error">❌</button>' +
+            '<button class="chip-btn critical-chip" data-attr="' + attr.id + '" data-err="' + e + '" data-mark="critical" title="Critical error">⛔</button>' +
+          '</div>'
+        ).join('') +
+      '</div>';
+    container.appendChild(div);
+  });
+  document.querySelectorAll('.applicability-toggle button').forEach(b =>
+    b.addEventListener('click', () => toggleApplicability(b.dataset.attr, b.dataset.app === 'true')));
+  document.querySelectorAll('.chip-btn').forEach(b =>
+    b.addEventListener('click', () => toggleMark(b.dataset.attr, b.dataset.err, b.dataset.mark)));
+}
 
-    var avgScore = totalAudits > 0 ? Math.round((totalScore / totalAudits) * 10) / 10 : 0;
-    var passRate = totalAudits > 0 ? Math.round(((totalAudits - criticalCount - errorCount) / totalAudits) * 100) : 0;
-    var isPersistent = criticalCount >= CONFIG.DAILY_VIOLATION_THRESHOLD;
-    var headerTitle  = isPersistent
-      ? 'Critical Performance Alert \u2014 ' + consultantName
-      : 'Daily Quality Report \u2014 ' + consultantName;
+function toggleApplicability(attrId, applicable) {
+  state[attrId].applicable = applicable;
+  if (!applicable) Object.keys(state[attrId].marks).forEach(k => state[attrId].marks[k] = null);
+  const card = document.getElementById('attr-' + attrId);
+  card.querySelectorAll('.applicability-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.app === String(applicable));
+    b.classList.toggle('applicable', b.dataset.app === 'true');
+    b.classList.toggle('not-applicable', b.dataset.app === 'false');
+  });
+  card.classList.toggle('na-state', !applicable);
+  card.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+  card.querySelectorAll('.error-row').forEach(r => r.classList.remove('error-mark','critical-mark'));
+  refreshAttr(attrId); updateScore();
+}
 
-    // ── Highlights HTML ──
-    var highlightsHtml = '';
+function toggleMark(attrId, errName, mark) {
+  if (!state[attrId].applicable) return;
+  state[attrId].marks[errName] = (state[attrId].marks[errName] === mark) ? null : mark;
+  refreshAttr(attrId); updateScore();
+}
 
-    if (criticalCount > 0) {
-      highlightsHtml +=
-        '<tr><td style="padding:0 36px 24px;">' +
-        '<div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:10px;padding:18px 20px;">' +
-        '<div style="font-size:13px;font-weight:800;color:#991b1b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">Critical Violations (' + criticalCount + ')</div>' +
-        '<div style="font-size:13px;color:#7f1d1d;line-height:1.7;margin-bottom:14px;">The following case(s) require immediate review and corrective action.</div>';
-      for (var c = 0; c < criticalIssues.length; c++) {
-        var ci = criticalIssues[c];
-        highlightsHtml +=
-          '<div style="background:#fff;padding:14px 16px;border-radius:8px;margin-bottom:10px;border:1px solid #fecaca;">' +
-          '<div style="font-size:12px;font-weight:700;color:#991b1b;margin-bottom:8px;">Critical Violation #' + (c + 1) + '</div>' +
-          '<div style="font-size:12px;color:#7f1d1d;margin-bottom:10px;line-height:1.6;">' +
-            ci.errors.map(function(e){ return '&bull; ' + escapeHtml(e); }).join('<br>') +
-          '</div>' +
-          (ci.comments ? '<div style="font-size:11px;color:#475569;background:#f8fafc;padding:8px 10px;border-radius:6px;margin-bottom:10px;border-left:3px solid #cbd5e1;"><strong>Auditor Notes:</strong> ' + escapeHtml(ci.comments) + '</div>' : '') +
-          '<a href="' + escapeHtml(ci.caseLink) + '" style="display:inline-block;font-size:11px;color:#dc2626;text-decoration:none;font-weight:700;padding:5px 10px;background:#fef2f2;border-radius:6px;border:1px solid #fecaca;">View Case &rarr;</a>' +
-          '</div>';
-      }
-      highlightsHtml += '</div></td></tr>';
-    }
+function refreshAttr(attrId) {
+  const attr = ATTRIBUTES.find(a => a.id === attrId);
+  const card = document.getElementById('attr-' + attrId);
+  let hasErr = false, hasCrit = false;
+  attr.errors.forEach((e, i) => {
+    const mark = state[attrId].marks[e];
+    const row  = document.getElementById('row-' + attrId + '-' + i);
+    row.querySelector('.error-chip').classList.toggle('active', mark === 'error');
+    row.querySelector('.critical-chip').classList.toggle('active', mark === 'critical');
+    row.classList.toggle('error-mark', mark === 'error');
+    row.classList.toggle('critical-mark', mark === 'critical');
+    if (mark === 'error')    hasErr  = true;
+    if (mark === 'critical') hasCrit = true;
+  });
+  card.classList.toggle('has-error', hasErr && !hasCrit);
+  card.classList.toggle('has-critical', hasCrit);
+}
 
-    if (errorCount > 0) {
-      highlightsHtml +=
-        '<tr><td style="padding:0 36px 24px;">' +
-        '<div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:10px;padding:18px 20px;">' +
-        '<div style="font-size:13px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">Minor Errors (' + errorCount + ')</div>' +
-        '<div style="font-size:13px;color:#78350f;line-height:1.7;margin-bottom:14px;">Cases with partial deductions. Review for coaching opportunities.</div>';
-      for (var m = 0; m < minorIssues.length; m++) {
-        var mi = minorIssues[m];
-        highlightsHtml +=
-          '<div style="background:#fff;padding:14px 16px;border-radius:8px;margin-bottom:10px;border:1px solid #fde68a;">' +
-          '<div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px;">Minor Error #' + (m + 1) + ' &middot; Score: ' + mi.score + '/100</div>' +
-          '<div style="font-size:12px;color:#78350f;margin-bottom:10px;line-height:1.6;">' +
-            mi.errors.filter(function(e){ return e.indexOf('\u274C') === 0; }).map(function(e){ return '&bull; ' + escapeHtml(e); }).join('<br>') +
-          '</div>' +
-          (mi.comments ? '<div style="font-size:11px;color:#475569;background:#f8fafc;padding:8px 10px;border-radius:6px;margin-bottom:10px;border-left:3px solid #cbd5e1;"><strong>Auditor Notes:</strong> ' + escapeHtml(mi.comments) + '</div>' : '') +
-          '<a href="' + escapeHtml(mi.caseLink) + '" style="display:inline-block;font-size:11px;color:#92400e;text-decoration:none;font-weight:700;padding:5px 10px;background:#fffbeb;border-radius:6px;border:1px solid #fde68a;">View Case &rarr;</a>' +
-          '</div>';
-      }
-      highlightsHtml += '</div></td></tr>';
-    }
+function attrStatus(id) {
+  if (!state[id].applicable) return 'na';
+  const vals = Object.values(state[id].marks);
+  if (vals.includes('critical')) return 'critical';
+  if (vals.includes('error'))    return 'error';
+  return 'pass';
+}
 
-    if (frequentErrors.length > 0) {
-      var freqRows = frequentErrors.map(function(fe) {
-        return '<tr>' +
-          '<td style="padding:8px 12px;font-size:12px;color:#312e81;border-bottom:1px solid #e0e7ff;">' + escapeHtml(fe.name) + '</td>' +
-          '<td style="padding:8px 12px;font-size:12px;color:#4338ca;text-align:right;font-weight:700;border-bottom:1px solid #e0e7ff;font-family:monospace;">' + fe.count + 'x</td>' +
-          '</tr>';
-      }).join('');
-      highlightsHtml +=
-        '<tr><td style="padding:0 36px 24px;">' +
-        '<div style="background:#eef2ff;border-left:4px solid #6366f1;border-radius:10px;padding:18px 20px;">' +
-        '<div style="font-size:13px;font-weight:800;color:#3730a3;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Top Areas to Improve</div>' +
-        '<div style="font-size:13px;color:#3730a3;line-height:1.7;margin-bottom:12px;">These errors appeared most often today.</div>' +
-        '<table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;border:1px solid #c7d2fe;">' + freqRows + '</table>' +
-        '</div></td></tr>';
-    }
+function calcScore() {
+  if (ATTRIBUTES.some(a => attrStatus(a.id) === 'critical'))
+    return { score:0, hasCritical:true, reason:'Critical error detected' };
+  const errored = ATTRIBUTES.filter(a => attrStatus(a.id) === 'error');
+  if (errored.length >= 4)
+    return { score:0, hasCritical:true, reason: errored.length + ' attributes with minor errors (4+ = critical)' };
+  const appl  = ATTRIBUTES.filter(a => state[a.id].applicable);
+  if (!appl.length) return { score:0, hasCritical:false, reason:'No applicable attributes' };
+  const passed = appl.filter(a => attrStatus(a.id) === 'pass').length;
+  return { score: Math.round((passed / appl.length) * 1000) / 10, hasCritical:false, reason:'' };
+}
 
-    if (excellentCases.length > 0) {
-      highlightsHtml +=
-        '<tr><td style="padding:0 36px 24px;">' +
-        '<div style="background:#f0fdf4;border-left:4px solid #22c55e;border-radius:10px;padding:18px 20px;">' +
-        '<div style="font-size:13px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Excellent Cases (' + excellentCases.length + ')</div>' +
-        '<div style="font-size:13px;color:#166534;line-height:1.7;">Cases scoring 90+ demonstrating full compliance.</div>' +
-        '</div></td></tr>';
-    }
+function calcViolation() {
+  let pts = 0;
+  ATTRIBUTES.forEach(a => {
+    if (!state[a.id].applicable) return;
+    const s = attrStatus(a.id);
+    const heavy = ['leadStageErr','deal','documentation'].includes(a.id);
+    const mid   = ['call','task','followup'].includes(a.id);
+    if (s === 'critical') pts += heavy ? 10 : mid ? 7 : 5;
+    if (s === 'error')    pts += heavy ? 5  : mid ? 3 : 2;
+  });
+  return pts;
+}
 
-    // ── Audit Rows ──
-    var auditRows = audits.map(function(audit, i) {
-      var statusColor = audit.isCritical ? '#dc2626' : audit.score >= 90 ? '#22c55e' : audit.score >= 75 ? '#f59e0b' : '#ef4444';
-      var statusText  = audit.isCritical ? 'CRITICAL VIOLATION' : audit.score >= 90 ? 'EXCELLENT' : audit.score >= 75 ? 'GOOD' : 'POOR';
-      var statusBg    = audit.isCritical ? '#fef2f2' : audit.score >= 90 ? '#f0fdf4' : audit.score >= 75 ? '#fffbeb' : '#fef2f2';
-      return '<tr style="border-bottom:1px solid #e2e8f0;">' +
-        '<td style="padding:12px 16px;font-size:13px;font-weight:700;color:#0f172a;font-family:monospace;">' + (i + 1) + '</td>' +
-        '<td style="padding:12px 16px;"><a href="' + escapeHtml(audit.caseLink) + '" style="font-size:12px;color:#6366f1;text-decoration:none;font-weight:600;">View Case</a></td>' +
-        '<td style="padding:12px 16px;text-align:right;">' +
-          '<span style="display:inline-block;padding:4px 12px;background:' + statusBg + ';color:' + statusColor + ';border-radius:20px;font-size:10px;font-weight:800;">' + statusText + '</span>' +
-          '<div style="font-size:11px;color:#64748b;margin-top:4px;font-family:monospace;">' + audit.score + '/100</div>' +
-        '</td></tr>';
-    }).join('');
+function severity(score, hasCritical) {
+  if (hasCritical || score === 0) return { label:'CRITICAL VIOLATION', tagline:'Immediate attention required' };
+  if (score >= 90)                return { label:'EXCELLENT',          tagline:'All criteria met' };
+  if (score >= 75)                return { label:'GOOD',               tagline:'Minor issues identified' };
+  if (score >= 60)                return { label:'NEEDS IMPROVEMENT',  tagline:'Multiple issues found' };
+  return                                 { label:'POOR PERFORMANCE',   tagline:'Significant compliance gaps' };
+}
 
-    var sentTimestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd MMM yyyy, HH:mm');
-    var avgColor  = avgScore  >= 90 ? '#22c55e' : avgScore  >= 75 ? '#f59e0b' : '#ef4444';
-    var passColor = passRate  >= 80 ? '#22c55e' : passRate  >= 60 ? '#f59e0b' : '#ef4444';
-    var critColor = criticalCount === 0 ? '#22c55e' : criticalCount < 3 ? '#f59e0b' : '#dc2626';
+function updateScore() {
+  const res = calcScore();
+  const sev = severity(res.score, res.hasCritical);
+  const el  = document.getElementById('scoreValue');
+  el.textContent = res.score;
+  el.style.color = res.score >= 90 ? 'var(--green)' : res.score >= 70 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('scoreBand').textContent    = sev.label;
+  document.getElementById('scoreTagline').textContent = sev.tagline;
+  document.getElementById('criticalBanner').classList.toggle('active', res.hasCritical);
+  const ring = document.getElementById('ringFg');
+  ring.style.strokeDashoffset = 182.2 - (res.score / 100) * 182.2;
+  ring.style.stroke = res.score >= 90 ? 'var(--green)' : res.score >= 70 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('breakdown').innerHTML = ATTRIBUTES.map(a => {
+    const s = attrStatus(a.id);
+    const pts = s === 'na' ? 'N/A' : s === 'pass' ? 12.5 : 0;
+    const max = s === 'na' ? 'N/A' : 12.5;
+    return '<div class="breakdown-item' + (s === 'na' ? ' na' : s !== 'pass' ? ' failed' : '') + '">' +
+      '<div>' + a.name + '</div><div class="points">' + pts + '/' + max + '</div></div>';
+  }).join('');
+  ATTRIBUTES.forEach(a => {
+    const s = attrStatus(a.id);
+    document.getElementById('points-' + a.id).textContent = s === 'na' ? 'N/A' : (s === 'pass' ? 12.5 : 0) + ' / 12.5';
+  });
+}
 
-    var html =
-      '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">' +
-      '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px;"><tr><td align="center">' +
-      '<table width="680" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.08);">' +
+function toggleSection(id) { document.getElementById(id).classList.toggle('collapsed'); }
 
-      // Header
-      '<tr><td style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:36px 36px 32px;">' +
-      '<div style="font-size:11px;font-weight:700;letter-spacing:0.18em;color:#818cf8;text-transform:uppercase;margin-bottom:8px;">HOF Migration &middot; CRM &amp; Compliance</div>' +
-      '<div style="font-size:22px;font-weight:800;color:#f8fafc;line-height:1.3;">' + escapeHtml(headerTitle) + '</div>' +
-      '<div style="font-size:13px;color:#94a3b8;margin-top:6px;">Daily compliance review for ' + escapeHtml(todayStr) + '</div>' +
-      '</td></tr>' +
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+function showStatus(msg, type) {
+  const el = document.getElementById('submitStatus');
+  el.textContent = msg; el.className = 'submit-status ' + type;
+}
 
-      // Stats
-      '<tr><td style="padding:32px 36px 20px;">' +
-      '<table width="100%" cellpadding="0" cellspacing="0"><tr>' +
-      statCard(String(totalAudits), 'Total Audits', '#0f172a') +
-      statCard(String(avgScore),    'Avg Score',    avgColor)  +
-      statCard(passRate + '%',      'Pass Rate',    passColor) +
-      statCard(String(criticalCount),'Critical',   critColor) +
-      '</tr></table></td></tr>' +
+// ══ SUBMIT — now uses GET params ══
+function setSubmitting(on) {
+  isSubmitting = on;
+  ['submitBtn','topSubmitBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    b.disabled = on;
+    b.innerHTML = on ? '<div class="spinner"></div> Saving...' : (id === 'submitBtn' ? '⬆ Submit to Sheet' : '↑ Submit Audit');
+  });
+}
 
-      // Meta
-      '<tr><td style="padding:0 36px 24px;">' +
-      '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:10px;padding:6px 16px;">' +
-      metaRow('Consultant', escapeHtml(consultantName), true,  '#0f172a', '700') +
-      metaRow('Reviewed By', escapeHtml(auditorName || '\u2014'), false, '#334155', '400') +
-      metaRow('Date',        escapeHtml(todayStr),               false, '#334155', '400') +
-      '</table></td></tr>' +
+async function submitAudit() {
+  if (isSubmitting) return;
+  const consultant = getPinned('consultant');
+  const auditor    = getPinned('auditor');
+  const leadStage  = getPinned('leadStage');
+  const caseLink   = document.getElementById('caseLink').value.trim();
+  const comments   = document.getElementById('comments').value.trim();
 
-      highlightsHtml +
-
-      // Audit list
-      '<tr><td style="padding:0 36px 24px;">' +
-      '<div style="font-size:12px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">Complete Audit List</div>' +
-      '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">' +
-      '<thead><tr style="background:#f1f5f9;">' +
-      '<th style="padding:11px 16px;font-size:11px;color:#475569;text-transform:uppercase;text-align:left;font-weight:700;width:50px;">#</th>' +
-      '<th style="padding:11px 16px;font-size:11px;color:#475569;text-transform:uppercase;text-align:left;font-weight:700;">Case</th>' +
-      '<th style="padding:11px 16px;font-size:11px;color:#475569;text-transform:uppercase;text-align:right;font-weight:700;">Status</th>' +
-      '</tr></thead><tbody>' + auditRows + '</tbody></table></td></tr>' +
-
-      // Action plan
-      '<tr><td style="padding:0 36px 32px;">' +
-      '<div style="padding:20px 24px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;">' +
-      '<div style="font-size:12px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Recommended Action Plan</div>' +
-      '<div style="font-size:14px;color:#166534;line-height:1.8;">' +
-      (criticalCount > 0 ? '&bull; <strong>Priority:</strong> Review all ' + criticalCount + ' critical violation(s) within 24 hours<br>' : '') +
-      '&bull; Schedule a 1-on-1 feedback session with ' + escapeHtml(consultantName) + '<br>' +
-      '&bull; Address recurring patterns shown in Top Areas to Improve<br>' +
-      '&bull; Provide targeted training for identified weak areas<br>' +
-      '&bull; Document corrective actions and set follow-up dates' +
-      '</div></div></td></tr>' +
-
-      // Footer
-      '<tr><td style="padding:24px 36px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);">' +
-      '<table width="100%" cellpadding="0" cellspacing="0"><tr>' +
-      '<td style="font-size:11px;color:#cbd5e1;line-height:1.7;">' +
-        '<div style="font-weight:800;color:#f8fafc;font-size:13px;letter-spacing:0.04em;margin-bottom:4px;">HOF Migration</div>' +
-        '<div style="color:#94a3b8;">CRM &amp; Compliance System</div>' +
-      '</td>' +
-      '<td align="right" style="font-size:10px;color:#94a3b8;line-height:1.7;">' +
-        '<div>Confidential &middot; Internal Use Only</div>' +
-        '<div style="margin-top:2px;">Generated ' + escapeHtml(sentTimestamp) + '</div>' +
-      '</td>' +
-      '</tr></table></td></tr>' +
-
-      '</table></td></tr></table></body></html>';
-
-    var recipients = [CONFIG.MANAGER_EMAIL];
-    if (CONFIG.CC_CONSULTANT_ON_ALERT && consultantEmail && consultantEmail !== CONFIG.MANAGER_EMAIL) {
-      recipients.push(consultantEmail);
-    }
-
-    Logger.log('Recipients: ' + recipients.join(', '));
-    Logger.log('MailApp quota: ' + MailApp.getRemainingDailyQuota());
-
-    MailApp.sendEmail({
-      to:       recipients.join(','),
-      subject:  headerTitle + ' (' + todayStr + ')',
-      htmlBody: html
-    });
-
-    Logger.log('Email sent to: ' + recipients.join(', '));
-    return true;
-
-  } catch (err) {
-    Logger.log('sendComprehensiveReport FAILED: ' + err.toString());
-    Logger.log('Stack: ' + err.stack);
-    return false;
+  if (!consultant || !auditor || !leadStage || !caseLink) {
+    showToast('⚠️ Fill in Consultant, Auditor, Lead Stage, and Case Link.', 'error'); return;
   }
-}
 
-// ── HTML helpers ──
-function statCard(val, label, color) {
-  return '<td width="25%" style="padding:0 4px;"><div style="padding:16px 8px;background:#f1f5f9;border-radius:12px;text-align:center;">' +
-    '<div style="font-size:28px;font-weight:800;color:' + color + ';">' + val + '</div>' +
-    '<div style="font-size:10px;color:#64748b;font-weight:700;margin-top:6px;text-transform:uppercase;letter-spacing:0.06em;">' + label + '</div>' +
-    '</div></td>';
-}
-function metaRow(label, val, first, color, weight) {
-  var border = first ? '' : 'border-top:1px solid #e2e8f0;';
-  return '<tr>' +
-    '<td style="padding:10px 0;font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;width:160px;' + border + '">' + label + '</td>' +
-    '<td style="padding:10px 0;font-size:14px;color:' + color + ';font-weight:' + weight + ';' + border + '">' + val + '</td>' +
-    '</tr>';
-}
+  const res  = calcScore();
+  const sev  = severity(res.score, res.hasCritical);
+  const vio  = calcViolation();
+  const attrVals = {};
 
-// ============== SEND ALL DAILY REPORTS ==============
-function sendAllDailyReports(auditDate, auditorName) {
-  try {
-    var ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    var sheet = ss.getSheetByName(CONFIG.TAB_NAME);
-    if (!sheet) return jsonOut({ status: 'error', message: 'Sheet tab not found' });
+  ATTRIBUTES.forEach(a => {
+    const s = state[a.id];
+    if (!s.applicable) { attrVals[a.id] = 'N/A'; return; }
+    const crit = a.errors.find(e => s.marks[e] === 'critical');
+    if (crit) { attrVals[a.id] = '⛔ ' + crit; return; }
+    const err  = a.errors.find(e => s.marks[e] === 'error');
+    if (err)  { attrVals[a.id] = '❌ ' + err;  return; }
+    attrVals[a.id] = '';
+  });
 
-    var todayStr = auditDate || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
-    var data     = sheet.getDataRange().getValues();
-    var consultantsToday = {};
+  const cObj = CONSULTANTS.find(c => c.name === consultant);
 
-    for (var i = 1; i < data.length; i++) {
-      var rowConsultant = String(data[i][0] || '').trim();
-      var rowDateRaw    = data[i][1];
-      var rowDate = (rowDateRaw instanceof Date)
-        ? Utilities.formatDate(rowDateRaw, Session.getScriptTimeZone(), 'dd/MM/yyyy')
-        : String(rowDateRaw || '').trim();
-      if (rowConsultant && rowDate === todayStr) consultantsToday[rowConsultant] = true;
-    }
-
-    var consultantList = Object.keys(consultantsToday);
-    if (consultantList.length === 0) {
-      return jsonOut({ status: 'no_audits', message: 'No audits found for today' });
-    }
-
-    var sent = [], skipped = [], failed = [];
-    for (var c = 0; c < consultantList.length; c++) {
-      var name = consultantList[c];
-      try {
-        var result = finishDayForConsultant(name, todayStr, auditorName || 'System');
-        var resObj = JSON.parse(result.getContent());
-        if      (resObj.status === 'success')      sent.push(name);
-        else if (resObj.status === 'already_sent') skipped.push(name);
-        else                                       failed.push(name);
-      } catch (innerErr) {
-        Logger.log('Failed for ' + name + ': ' + innerErr.message);
-        failed.push(name);
-      }
-    }
-
-    return jsonOut({
-      status:           'success',
-      totalConsultants: consultantList.length,
-      sent:             sent,
-      skipped:          skipped,
-      failed:           failed,
-      sentAt:           new Date().toISOString()
-    });
-
-  } catch (err) {
-    Logger.log('sendAllDailyReports error: ' + err.message);
-    return jsonOut({ status: 'error', message: err.message });
-  }
-}
-
-// ============== CONSULTANT EMAIL LOOKUP ==============
-function getConsultantEmail(consultantName) {
-  var emails = {
-    'talha (test)':           'talha@hofmigration.com',
-    'muhammad bin atif':      'muhammadbinatif@hofmigration.com',
-    'aqsa fareed':            'aqsafareed@hofmigration.com',
-    'badar saeed':            'badar@hofmigration.com',
-    'muhammad awaad':         'awaad@hofmigration.com',
-    'muhammad hanzla':        'hanzla@hofmigration.com',
-    'tuba':                   'tuba@hofmigration.com',
-    'mashal fatima':          'mashal@hofmigration.com',
-    'muizza':                 'muizza@hofmigration.com',
-    'sultan butt':            'sultanbutt@hofmigration.com',
-    'rabbiya jillani':        'rabbiya@hofmigration.com',
-    'muhammad diean':         'diean@hofmigration.com',
-    'muhammad shahzad fiaz':  'shahzadfiaz@hofmigration.com',
-    'fatima zahid':           'fatimazahid@hofmigration.com',
-    'ayesha zahid':           'ayeshazahid@hofmigration.com',
-    'syed hussain ali haris': 'hussainshah@hofmigration.com',
-    'ahmad ali':              'ahmada@hofmigration.com',
-    'ali raza qureshi':       'aliraza@hofmigration.com',
-    'mishal naseem':          'mishal@hofmigration.com',
-    'fahad butt':             'fahad@hofmigration.com',
-    'atika zainab':           'atika@hofmigration.com',
-    'hamza mughal':           'hamzaazeemi@hofmigration.com'
+  const params = {
+    consultant,
+    consultantEmail:    cObj ? cObj.email : '',
+    auditDate:          new Date().toLocaleDateString('en-GB'),
+    leadStage,
+    callError:          attrVals.call          || '',
+    whatsappError:      attrVals.whatsapp      || '',
+    emailError:         attrVals.email         || '',
+    documentationError: attrVals.documentation || '',
+    leadStageError:     attrVals.leadStageErr  || '',
+    dealError:          attrVals.deal          || '',
+    taskError:          attrVals.task          || '',
+    followUp:           attrVals.followup      || '',
+    comments,
+    caseLink,
+    totalScore:         res.score,
+    auditor,
+    violationPoints:    vio,
+    severity:           sev.label
   };
-  var key = String(consultantName || '').trim().toLowerCase();
-  var resolved = emails[key] || '';
-  if (!resolved) Logger.log('WARNING: No email for "' + consultantName + '" (key: "' + key + '")');
-  return resolved;
-}
 
-// ============== MIDNIGHT RESET ==============
-function resetDailySentKeys() {
+  setSubmitting(true);
+  showStatus('⏳ Saving to sheet...', 'loading');
+
   try {
-    var props = PropertiesService.getScriptProperties();
-    var n = 0;
-    props.getKeys().forEach(function(k) {
-      if (k.indexOf('sent_') === 0) { props.deleteProperty(k); n++; }
-    });
-    Logger.log('Cleared ' + n + ' daily sent keys');
+    const response = await callAppsScript(params);
+    const text = await response.text();
+    console.log('Submit response:', text);
+
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
+
+    if (data.status === 'success') {
+      showStatus('✓ Audit saved to RAW AUDIT NEW!', 'success');
+      showToast('✓ Saved to sheet!', 'success');
+      setTimeout(resetForm, 1200);
+    } else {
+      showStatus('⚠️ ' + (data.message || 'Unknown error'), 'error');
+      showToast('⚠️ Submit failed: ' + (data.message || 'check console'), 'error');
+    }
   } catch (err) {
-    Logger.log('resetDailySentKeys error: ' + err.message);
+    console.error('Submit error:', err);
+    showStatus('⚠️ Network error — check console', 'error');
+    showToast('⚠️ Network error', 'error');
+  } finally {
+    setSubmitting(false);
   }
 }
 
-// ============== UTILITIES ==============
-function escapeHtml(s) {
-  if (s === null || s === undefined) return '';
-  return String(s)
-    .replace(/&/g,  '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;')
-    .replace(/'/g,  '&#39;');
-}
+// ══ FINISH DAY — real response handling ══
+let pendingFinish = null;
 
-// ============== DIAGNOSTICS ==============
-function diagnose() {
-  var results = [];
-  try {
-    var ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-    results.push('OK: Spreadsheet: ' + ss.getName());
-  } catch(e) { results.push('FAIL: Spreadsheet: ' + e.message); }
-
-  try {
-    var sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(CONFIG.TAB_NAME);
-    if (sheet) results.push('OK: Tab "' + sheet.getName() + '" | Rows: ' + sheet.getLastRow());
-    else       results.push('FAIL: Tab NOT FOUND: "' + CONFIG.TAB_NAME + '"');
-  } catch(e) { results.push('FAIL: Tab: ' + e.message); }
-
-  try {
-    var allSheets = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheets();
-    results.push('All tabs: ' + allSheets.map(function(s){ return '"' + s.getName() + '"'; }).join(', '));
-  } catch(e) {}
-
-  try {
-    results.push('OK: MailApp quota: ' + MailApp.getRemainingDailyQuota());
-  } catch(e) { results.push('FAIL: MailApp: ' + e.message); }
-
-  Logger.log('\n=== DIAGNOSE ===\n' + results.join('\n'));
-}
-
-function debugEmailLookup() {
-  var ss    = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  var sheet = ss.getSheetByName(CONFIG.TAB_NAME);
-  if (!sheet) { Logger.log('Tab not found'); return; }
-  var data  = sheet.getDataRange().getValues();
-  var names = {};
-  for (var i = 1; i < data.length; i++) {
-    var name = String(data[i][0] || '').trim();
-    if (name) names[name] = getConsultantEmail(name);
+function finishDayAudits() {
+  if (isFinishing || isSubmitting) return;
+  const consultant = getPinned('consultant');
+  const auditor    = getPinned('auditor');
+  if (!consultant || !auditor) {
+    showToast('⚠️ Pin Consultant and Auditor before finishing the day.', 'error'); return;
   }
-  Logger.log('=== Email Lookup Results ===');
-  Object.keys(names).sort().forEach(function(n) {
-    var email = names[n];
-    Logger.log((email ? 'OK   ' : 'MISS ') + '"' + n + '" -> ' + (email || '(no match)'));
+  const cObj = CONSULTANTS.find(c => c.name === consultant);
+  pendingFinish = { consultant, auditor, consultantEmail: cObj ? cObj.email : '' };
+  showModal('confirm');
+}
+
+function showModal(modalState, extra) {
+  const modal = document.getElementById('modal');
+  const box   = document.getElementById('modalBox');
+  const d     = pendingFinish || {};
+
+  if (modalState === 'confirm') {
+    box.innerHTML =
+      '<div class="modal-icon">📋</div>' +
+      '<div class="modal-title">Send Daily Report?</div>' +
+      '<div class="modal-message">Send the comprehensive daily report for <strong>' + d.consultant + '</strong>?</div>' +
+      '<div class="modal-recipients"><div class="modal-recipients-title">Recipients</div>' +
+      '<div class="modal-recipients-list"><strong>Manager:</strong> ' + MANAGER_EMAIL + '<br><strong>Consultant:</strong> ' + (d.consultantEmail || '(not in directory)') + '</div></div>' +
+      '<div class="modal-btn-row"><button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>' +
+      '<button class="modal-close-btn" onclick="executeFinish()">Send Report</button></div>';
+  } else if (modalState === 'sending') {
+    box.innerHTML =
+      '<div class="big-spinner"></div>' +
+      '<div class="modal-title">Sending Report...</div>' +
+      '<div class="modal-message">Compiling audits for <strong>' + d.consultant + '</strong>. This takes 5–15 seconds.</div>';
+  } else if (modalState === 'success') {
+    box.innerHTML =
+      '<div class="modal-icon">✓</div>' +
+      '<div class="modal-title">Report Sent!</div>' +
+      '<div class="modal-message">Daily report for <strong>' + d.consultant + '</strong> sent successfully.</div>' +
+      '<div class="modal-timestamp">Sent at ' + extra.sentAt + '</div>' +
+      '<div class="modal-result-box"><strong>Audits processed:</strong> ' + extra.auditsProcessed + '<br><strong>Critical issues:</strong> ' + extra.criticalCount + '</div>' +
+      '<div class="modal-recipients"><div class="modal-recipients-title">Delivered To</div>' +
+      '<div class="modal-recipients-list"><strong>Manager:</strong> ' + MANAGER_EMAIL + '<br><strong>Consultant:</strong> ' + (d.consultantEmail || '(not in directory)') + '</div></div>' +
+      '<button class="modal-close-btn" onclick="closeModal()">Done</button>';
+  } else if (modalState === 'finish-error') {
+    box.innerHTML =
+      '<div class="modal-icon" style="background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);">⚠️</div>' +
+      '<div class="modal-title">Report Issue</div>' +
+      '<div class="modal-message">' + (extra || 'Something went wrong. Check Apps Script Executions log.') + '</div>' +
+      '<button class="modal-close-btn" onclick="closeModal()">Close</button>';
+  } else if (modalState === 'sendall-confirm') {
+    box.innerHTML =
+      '<div class="modal-icon" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);">📤</div>' +
+      '<div class="modal-title">Send All Reports?</div>' +
+      '<div class="modal-message">Sends a personalized daily report to every consultant audited today. Takes 30–90 seconds.</div>' +
+      '<div class="modal-btn-row"><button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>' +
+      '<button class="modal-close-btn" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);" onclick="executeSendAll()">Send All</button></div>';
+  } else if (modalState === 'sendall-done') {
+    const r = extra;
+    box.innerHTML =
+      '<div class="modal-icon">✓</div>' +
+      '<div class="modal-title">All Reports Sent</div>' +
+      '<div class="modal-result-box">' +
+      '<strong>Total consultants:</strong> ' + (r.totalConsultants || 0) + '<br>' +
+      '<strong>Sent:</strong> ' + (r.sent ? r.sent.join(', ') || 'None' : 'None') + '<br>' +
+      '<strong>Skipped (already sent):</strong> ' + (r.skipped ? r.skipped.join(', ') || 'None' : 'None') + '<br>' +
+      (r.failed && r.failed.length ? '<strong style="color:var(--red)">Failed:</strong> ' + r.failed.join(', ') + '<br>' : '') +
+      '</div>' +
+      '<button class="modal-close-btn" onclick="closeModal()">Done</button>';
+  }
+  modal.classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+function setFinishing(on) {
+  isFinishing = on;
+  ['finishBtn','topFinishBtn','topSendAllBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.disabled = on;
   });
 }
 
-function clearAllSentKeys() {
-  var props = PropertiesService.getScriptProperties();
-  var n = 0;
-  props.getKeys().forEach(function(k) {
-    if (k.indexOf('sent_') === 0) { props.deleteProperty(k); n++; }
+async function executeFinish() {
+  if (!pendingFinish) return;
+  showModal('sending');
+  setFinishing(true);
+
+  const todayStr = new Date().toLocaleDateString('en-GB');
+
+  try {
+    const response = await callAppsScript({
+      action:    'finishDay',
+      consultant: pendingFinish.consultant,
+      auditDate:  todayStr,
+      auditor:    pendingFinish.auditor
+    });
+
+    const text = await response.text();
+    console.log('Finish day response:', text);
+
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: 'Bad response: ' + text }; }
+
+    if (data.status === 'success') {
+      showModal('success', {
+        sentAt:          new Date().toLocaleTimeString(),
+        auditsProcessed: data.auditsProcessed || 0,
+        criticalCount:   data.criticalCount   || 0
+      });
+    } else if (data.status === 'already_sent') {
+      showModal('finish-error', 'Report already sent today for ' + pendingFinish.consultant + '. Clear sent keys if you need to resend.');
+    } else if (data.status === 'no_audits') {
+      showModal('finish-error', 'No audits found for ' + pendingFinish.consultant + ' today (' + todayStr + '). Make sure audits are submitted first.');
+    } else {
+      showModal('finish-error', data.message || 'Unknown error. Check Apps Script Executions log.');
+    }
+  } catch (err) {
+    console.error('Finish error:', err);
+    showModal('finish-error', 'Network error: ' + err.message);
+  } finally {
+    setFinishing(false);
+  }
+}
+
+// ══ SEND ALL ══
+function sendAllReports() {
+  if (isFinishing || isSubmitting) return;
+  const auditor = getPinned('auditor');
+  if (!auditor) { showToast('⚠️ Pin Auditor before sending all reports.', 'error'); return; }
+  showModal('sendall-confirm');
+}
+
+async function executeSendAll() {
+  const auditor = getPinned('auditor');
+  setFinishing(true);
+
+  const box = document.getElementById('modalBox');
+  box.innerHTML = '<div class="big-spinner" style="border-top-color:#f59e0b;"></div>' +
+    '<div class="modal-title">Sending All Reports...</div>' +
+    '<div class="modal-message">This takes 30–90 seconds. Please wait.</div>';
+
+  const todayStr = new Date().toLocaleDateString('en-GB');
+
+  try {
+    const response = await callAppsScript({
+      action:    'sendAllReports',
+      auditDate:  todayStr,
+      auditor
+    });
+
+    const text = await response.text();
+    console.log('Send all response:', text);
+
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: text }; }
+
+    showModal('sendall-done', data);
+  } catch (err) {
+    console.error('Send all error:', err);
+    showModal('finish-error', 'Network error: ' + err.message);
+  } finally {
+    setFinishing(false);
+  }
+}
+
+
+// ══ TAG CASE — save to Tagged Cases tab ══
+function setTagging(on) {
+  isSubmitting = on;
+  ['tagBtn','topTagBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.disabled = on;
+    b.innerHTML = on ? '<div class="spinner" style="border-top-color:#f59e0b;"></div> Tagging...' : (id === 'tagBtn' ? '🏷️ Tag Case' : '🏷️ Tag Case');
   });
-  Logger.log('Cleared ' + n + ' sent keys');
 }
 
-// ── Test helpers ──
-function testPing() {
-  var result = doGet({ parameter: { action: 'ping' } });
-  Logger.log(result.getContent());
+async function tagCase() {
+  if (isSubmitting) return;
+
+  const consultant = getPinned('consultant');
+  const auditor    = getPinned('auditor');
+  const caseLink   = document.getElementById('caseLink').value.trim();
+  const comments   = document.getElementById('comments').value.trim();
+
+  if (!consultant || !auditor || !caseLink) {
+    showToast('⚠️ Fill in Consultant, Auditor, and Case Link to tag.', 'error');
+    return;
+  }
+
+  const cObj = CONSULTANTS.find(c => c.name === consultant);
+  const todayStr = new Date().toLocaleDateString('en-GB');
+  const nowStr   = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+  const params = {
+    action:           'tagCase',
+    consultant:       consultant,
+    consultantEmail:  cObj ? cObj.email : '',
+    caseLink:         caseLink,
+    comments:         comments,
+    tagDate:          todayStr,
+    tagTime:          nowStr,
+    auditor:          auditor
+  };
+
+  setTagging(true);
+  showStatus('🏷️ Tagging case...', 'loading');
+
+  try {
+    const response = await callAppsScript(params);
+    const text = await response.text();
+    console.log('Tag response:', text);
+
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
+
+    if (data.status === 'success') {
+      showStatus('✓ Case tagged in Tagged Cases tab!', 'success');
+      showToast('✓ Tagged: ' + consultant, 'success');
+      document.getElementById('caseLink').value = '';
+      document.getElementById('comments').value = '';
+    } else {
+      showStatus('⚠️ ' + (data.message || 'Tag failed'), 'error');
+      showToast('⚠️ Tag failed: ' + (data.message || 'check console'), 'error');
+    }
+  } catch (err) {
+    console.error('Tag error:', err);
+    showStatus('⚠️ Network error — check console', 'error');
+    showToast('⚠️ Network error', 'error');
+  } finally {
+    setTagging(false);
+  }
 }
 
-function testFinishDay() {
-  var todayStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
-  var result   = finishDayForConsultant('Talha (Test)', todayStr, 'Test Auditor');
-  Logger.log(result.getContent());
-}
-
-function testEmail() {
-  MailApp.sendEmail({
-    to:      'talha@hofmigration.com',
-    subject: 'HOF Script Test',
-    body:    'Apps Script email is working. Time: ' + new Date().toISOString()
+// ══ RESET ══
+function resetForm() {
+  ['consultant','leadStage','auditor'].forEach(id => { if (!pins[id].pinned) document.getElementById(id).value = ''; });
+  document.getElementById('caseLink').value   = '';
+  document.getElementById('comments').value   = '';
+  ATTRIBUTES.forEach(a => {
+    state[a.id] = { applicable:true, marks:{} };
+    a.errors.forEach(e => state[a.id].marks[e] = null);
   });
-  Logger.log('Test email sent. Quota: ' + MailApp.getRemainingDailyQuota());
+  renderAttributes(); updateScore();
+  document.getElementById('submitStatus').className = 'submit-status';
+  showToast('↺ Form reset. Pinned fields preserved.', 'info');
 }
+
+init();
+</script>
+</body>
+</html>
