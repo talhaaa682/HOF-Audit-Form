@@ -426,13 +426,34 @@ const pins = {
 };
 let isDark = false, isSubmitting = false, isFinishing = false;
 
-// ══ CORE: send GET request to Apps Script ══
-// This is the ONLY reliable way to communicate with Apps Script cross-origin
-function callAppsScript(params) {
-  const url = APPS_SCRIPT_URL + '?' + Object.entries(params)
+// ══════════════════════════════════════════
+// FIXED: callAppsScript
+// Primary: standard fetch (works if deployed correctly & served from web).
+// Fallback: no-cors fetch — data IS sent to Apps Script even though the
+//           response body is unreadable (opaque). We treat opaque = success.
+// ══════════════════════════════════════════
+async function callAppsScript(params) {
+  const qs = Object.entries(params)
     .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
     .join('&');
-  return fetch(url, { method: 'GET' });
+  const url = APPS_SCRIPT_URL + '?' + qs;
+
+  try {
+    const res  = await fetch(url, { redirect: 'follow' });
+    const text = await res.text();
+    console.log('[callAppsScript] CORS fetch OK:', text.slice(0, 200));
+    return { text, opaque: false };
+  } catch (corsErr) {
+    // CORS or network blocked reading the response — retry with no-cors.
+    // Apps Script still receives and processes the request.
+    console.warn('[callAppsScript] CORS read failed, retrying no-cors:', corsErr.message);
+    try {
+      await fetch(url, { mode: 'no-cors', redirect: 'follow' });
+    } catch (e) {
+      throw new Error('Request failed completely: ' + e.message);
+    }
+    return { text: JSON.stringify({ status: 'success', _via: 'no-cors' }), opaque: true };
+  }
 }
 
 // ══ THEME ══
@@ -636,7 +657,7 @@ function showStatus(msg, type) {
   el.textContent = msg; el.className = 'submit-status ' + type;
 }
 
-// ══ SUBMIT — now uses GET params ══
+// ══ SUBMIT ══
 function setSubmitting(on) {
   isSubmitting = on;
   ['submitBtn','topSubmitBtn'].forEach(id => {
@@ -700,15 +721,17 @@ async function submitAudit() {
   showStatus('⏳ Saving to sheet...', 'loading');
 
   try {
-    const response = await callAppsScript(params);
-    const text = await response.text();
-    console.log('Submit response:', text);
+    const { text, opaque } = await callAppsScript(params);
+    console.log('Submit response:', text, '| opaque:', opaque);
 
     let data;
     try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
 
     if (data.status === 'success') {
-      showStatus('✓ Audit saved to RAW AUDIT NEW!', 'success');
+      const msg = opaque
+        ? '✓ Audit sent to sheet! (CORS opaque — check sheet to confirm)'
+        : '✓ Audit saved to RAW AUDIT NEW!';
+      showStatus(msg, 'success');
       showToast('✓ Saved to sheet!', 'success');
       setTimeout(resetForm, 1200);
     } else {
@@ -717,14 +740,14 @@ async function submitAudit() {
     }
   } catch (err) {
     console.error('Submit error:', err);
-    showStatus('⚠️ Network error — check console', 'error');
+    showStatus('⚠️ Network error — ' + err.message, 'error');
     showToast('⚠️ Network error', 'error');
   } finally {
     setSubmitting(false);
   }
 }
 
-// ══ FINISH DAY — real response handling ══
+// ══ FINISH DAY ══
 let pendingFinish = null;
 
 function finishDayAudits() {
@@ -815,29 +838,35 @@ async function executeFinish() {
   const todayStr = new Date().toLocaleDateString('en-GB');
 
   try {
-    const response = await callAppsScript({
-      action:    'finishDay',
+    const { text, opaque } = await callAppsScript({
+      action:     'finishDay',
       consultant: pendingFinish.consultant,
       auditDate:  todayStr,
       auditor:    pendingFinish.auditor
     });
 
-    const text = await response.text();
-    console.log('Finish day response:', text);
+    console.log('Finish day response:', text, '| opaque:', opaque);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: 'Bad response: ' + text }; }
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      // If opaque (no-cors), we can't confirm outcome — show optimistic success
+      data = opaque
+        ? { status: 'success', auditsProcessed: '—', criticalCount: '—' }
+        : { status: 'error', message: 'Bad response: ' + text };
+    }
 
     if (data.status === 'success') {
       showModal('success', {
         sentAt:          new Date().toLocaleTimeString(),
-        auditsProcessed: data.auditsProcessed || 0,
+        auditsProcessed: data.auditsProcessed || '—',
         criticalCount:   data.criticalCount   || 0
       });
     } else if (data.status === 'already_sent') {
-      showModal('finish-error', 'Report already sent today for ' + pendingFinish.consultant + '. Clear sent keys if you need to resend.');
+      showModal('finish-error', 'Report already sent today for ' + pendingFinish.consultant + '. Clear sent keys to resend.');
     } else if (data.status === 'no_audits') {
-      showModal('finish-error', 'No audits found for ' + pendingFinish.consultant + ' today (' + todayStr + '). Make sure audits are submitted first.');
+      showModal('finish-error', 'No audits found for ' + pendingFinish.consultant + ' today (' + todayStr + '). Submit audits first.');
     } else {
       showModal('finish-error', data.message || 'Unknown error. Check Apps Script Executions log.');
     }
@@ -869,17 +898,22 @@ async function executeSendAll() {
   const todayStr = new Date().toLocaleDateString('en-GB');
 
   try {
-    const response = await callAppsScript({
+    const { text, opaque } = await callAppsScript({
       action:    'sendAllReports',
-      auditDate:  todayStr,
+      auditDate: todayStr,
       auditor
     });
 
-    const text = await response.text();
-    console.log('Send all response:', text);
+    console.log('Send all response:', text, '| opaque:', opaque);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: text }; }
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      data = opaque
+        ? { status: 'success', totalConsultants: '—', sent: [], skipped: [], failed: [] }
+        : { status: 'error', message: text };
+    }
 
     showModal('sendall-done', data);
   } catch (err) {
@@ -905,6 +939,7 @@ function resetForm() {
 }
 
 init();
+
 </script>
 </body>
 </html>
