@@ -16,7 +16,7 @@
   --radius:14px;--radius-sm:8px;--topbar-h:60px;
 }
 .t-light{
-  --bg:#f0f4ff;--surface:#ffffff;--surface2:#f4f6ff;--surface3:#eceffe;f
+  --bg:#f0f4ff;--surface:#ffffff;--surface2:#f4f6ff;--surface3:#eceffe;
   --border:#d8ddf5;--border2:#e5e8f8;
   --accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,0.15);
   --text:#1a1d35;--text2:#5a60a0;--text3:#9ca0c8;
@@ -29,6 +29,23 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-size:48px 48px;opacity:0.3}
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(ellipse 60% 40% at 50% 0%,var(--accent-glow),transparent 70%)}
+
+/* ── SETUP BANNER ── */
+#setupBanner{position:relative;z-index:100;background:linear-gradient(135deg,#7c1d1d,#991b1b);
+  border-bottom:2px solid #dc2626;padding:14px 24px;display:none;align-items:flex-start;gap:14px}
+#setupBanner.visible{display:flex}
+.setup-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.setup-text{flex:1}
+.setup-title{font-size:13px;font-weight:800;color:#fca5a5;margin-bottom:6px;letter-spacing:0.03em}
+.setup-desc{font-size:12px;color:#fecaca;line-height:1.7}
+.setup-desc code{background:rgba(0,0,0,0.3);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#fbbf24}
+.setup-steps{margin-top:8px;padding-left:16px;font-size:12px;color:#fecaca;line-height:2}
+.setup-input-row{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.setup-input{flex:1;min-width:260px;padding:8px 12px;background:rgba(0,0,0,0.4);border:1px solid rgba(220,38,38,0.5);
+  border-radius:7px;color:#fff;font-size:12px;font-family:'Inter',sans-serif;outline:none}
+.setup-input:focus{border-color:#fbbf24}
+.setup-save-btn{padding:8px 16px;background:#dc2626;border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
+.setup-save-btn:hover{background:#b91c1c}
 
 /* ── TOPBAR ── */
 .topbar{position:sticky;top:0;z-index:200;height:var(--topbar-h);background:var(--surface);
@@ -230,6 +247,29 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </head>
 <body class="t-light">
 
+<!-- ── SETUP BANNER (shown when URL is wrong) ── -->
+<div id="setupBanner">
+  <div class="setup-icon">⚠️</div>
+  <div class="setup-text">
+    <div class="setup-title">ACTION REQUIRED — Apps Script URL Not Configured</div>
+    <div class="setup-desc">
+      Your current URL is a <strong>Library URL</strong> (contains <code>/library/d/</code>), not a deployed Web App URL.
+      Audits appear to save but are <strong>NOT reaching your Google Sheet</strong>.<br><br>
+      <strong>To fix this:</strong>
+    </div>
+    <ol class="setup-steps">
+      <li>Open your Apps Script project → click <strong>Deploy</strong> → <strong>New deployment</strong></li>
+      <li>Type: <strong>Web app</strong> &nbsp;|&nbsp; Execute as: <strong>Me</strong> &nbsp;|&nbsp; Who has access: <strong>Anyone</strong></li>
+      <li>Click <strong>Deploy</strong> → copy the URL ending in <code>/exec</code></li>
+      <li>Paste it below and click Save</li>
+    </ol>
+    <div class="setup-input-row">
+      <input class="setup-input" id="urlInput" type="text" placeholder="https://script.google.com/macros/s/AKfycb.../exec" />
+      <button class="setup-save-btn" onclick="saveUrl()">Save URL</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── TOPBAR ── -->
 <div class="topbar">
   <div class="topbar-left">
@@ -364,10 +404,47 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <script>
 // ══════════════════════════════════════════
-// CONFIG — update URL after each redeployment
+// CONFIG
+// Replace with your deployed Web App /exec URL.
+// It must end in /exec — NOT /library/d/...
 // ══════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXhFO-rMoOvTLraul7ihJpBz7xgPOPcRWC2sJH2hbdYto0e09WVDPcEB3qinV6tNTfmw/exec';
-const MANAGER_EMAIL   = 'farazjamal@hofmigration.com';
+const DEFAULT_APPS_SCRIPT_URL = 'Yhttps://script.google.com/macros/s/AKfycbxiH5n8-KGwV69v28mcU2Pe_p9FczR56LPLyQFTN_HZSHh_C1jWBBK3aMI5IRYo1I4wQQ/exec'; // REPLACE WITH YOUR DEPLOYED WEB APP /EXEC URL
+const MANAGER_EMAIL = 'farazjamal@hofmigration.com';
+
+// ── Load saved URL from localStorage (set via setup banner) ──
+function getScriptUrl() {
+  return localStorage.getItem('hof_script_url') || DEFAULT_APPS_SCRIPT_URL;
+}
+
+function isValidExecUrl(url) {
+  // Must be a proper Apps Script web app /exec URL, not a library URL
+  return url &&
+    url.startsWith('https://script.google.com/macros/s/') &&
+    url.endsWith('/exec') &&
+    !url.includes('/library/');
+}
+
+function saveUrl() {
+  const val = document.getElementById('urlInput').value.trim();
+  if (!isValidExecUrl(val)) {
+    alert('❌ Invalid URL.\n\nIt must:\n• Start with: https://script.google.com/macros/s/\n• End with: /exec\n• NOT contain /library/\n\nExample:\nhttps://script.google.com/macros/s/AKfycb.../exec');
+    return;
+  }
+  localStorage.setItem('hof_script_url', val);
+  document.getElementById('setupBanner').classList.remove('visible');
+  showToast('✓ URL saved! You can now submit audits.', 'success');
+}
+
+function checkUrlOnLoad() {
+  const url = getScriptUrl();
+  if (!isValidExecUrl(url)) {
+    document.getElementById('setupBanner').classList.add('visible');
+    // Pre-fill with existing value if it's not the placeholder
+    if (url !== DEFAULT_APPS_SCRIPT_URL && url) {
+      document.getElementById('urlInput').value = url;
+    }
+  }
+}
 
 const CONSULTANTS = [
   { name:'Talha (Test)',           email:'talha@hofmigration.com' },
@@ -391,7 +468,12 @@ const CONSULTANTS = [
   { name:'Mishal Naseem',          email:'mishal@hofmigration.com' },
   { name:'Fahad Butt',             email:'fahad@hofmigration.com' },
   { name:'Atika Zainab',           email:'atika@hofmigration.com' },
-  { name:'Hamza Mughal',           email:'hamzaazeemi@hofmigration.com' }
+  { name:'Hamza Mughal',           email:'hamzaazeemi@hofmigration.com' },
+  { name:'Raza Shahid',            email:'razashahid@hofmigration.com' },
+  { name:'Khizar Khan Jadoon',     email:'khizar@hofmigration.com' },
+  { name:'Faiq Bin Ansab',         email:'faiq@hofmigration.com' },
+  { name:'Amna Hameed Qureshi',    email:'amnaqureshi@hofmigration.com' },
+  { name:'Haseeb',                 email:'haseeb@hofmigration.com' }
 ];
 
 const ATTRIBUTES = [
@@ -427,34 +509,61 @@ const pins = {
 let isDark = false, isSubmitting = false, isFinishing = false;
 
 // ══════════════════════════════════════════
-// FIXED: callAppsScript
-// Primary: standard fetch (works if deployed correctly & served from web).
-// Fallback: no-cors fetch — data IS sent to Apps Script even though the
-//           response body is unreadable (opaque). We treat opaque = success.
+// FIXED callAppsScript
+// ──────────────────────────────────────────
+// KEY CHANGE: No-cors fallback no longer fakes success.
+// If CORS blocks us from reading the response, we report
+// the real error so the user knows the save failed.
+//
+// Root cause of the original bug:
+//   - URL was a /library/d/ URL (wrong type — must be /exec)
+//   - The no-cors fallback returned {"status":"success","_via":"no-cors"}
+//     which is a FAKE success — data never reached the sheet.
 // ══════════════════════════════════════════
-// REPLACE your old callAppsScript with this version
 async function callAppsScript(params) {
-  // 1. Build the URL with parameters
+  const url = getScriptUrl();
+
+  // Guard: catch wrong URL type before even fetching
+  if (!isValidExecUrl(url)) {
+    throw new Error(
+      'Invalid Apps Script URL.\n\n' +
+      'You are using a Library URL (/library/d/…) instead of a Web App URL.\n\n' +
+      'Fix: Deploy → New deployment → Web app → copy the /exec URL and paste it in the setup banner above.'
+    );
+  }
+
   const qs = Object.entries(params)
     .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
     .join('&');
-  const url = APPS_SCRIPT_URL + '?' + qs;
+  const fullUrl = url + '?' + qs;
 
+  // Primary attempt — standard fetch (works when CORS headers are present)
   try {
-    // 2. Use no-cors to bypass Google's redirect security (CORS)
-    await fetch(url, { 
-      method: 'POST', // POST is more reliable for Apps Script
-      mode: 'no-cors',
-      cache: 'no-cache'
-    });
-
-    // 3. Force success: Since no-cors hides the response, we assume 
-    // it worked if it didn't crash. This stops the "Submit Failed" error.
-    console.log('[Success] Data pushed to Google');
-    return { status: 'success', opaque: true }; 
-  } catch (e) {
-    console.error('[Error] Network failure:', e);
-    throw e;
+    const res  = await fetch(fullUrl, { redirect: 'follow' });
+    const text = await res.text();
+    console.log('[callAppsScript] CORS fetch OK:', text.slice(0, 200));
+    return { text };
+  } catch (corsErr) {
+    console.warn('[callAppsScript] CORS read blocked:', corsErr.message);
+    // ── IMPORTANT FIX ──────────────────────────────────────────────────────
+    // Previous code fell back to no-cors and returned a fake success here.
+    // We now throw a real error instead so the user sees the actual problem.
+    //
+    // WHY no-cors fails here: Apps Script /exec already sends the required
+    // CORS headers when deployed as "Anyone" access. If you're still getting
+    // CORS errors it means:
+    //   (a) The URL is wrong (library URL, not /exec URL), OR
+    //   (b) The deployment wasn't set to "Anyone" access, OR
+    //   (c) The script hasn't been re-deployed after the last code change.
+    // ────────────────────────────────────────────────────────────────────────
+    throw new Error(
+      'CORS error — cannot reach the Apps Script web app.\n\n' +
+      'Common causes:\n' +
+      '1. Wrong URL type — must be /exec, not /library/d/\n' +
+      '2. Deployment access not set to "Anyone"\n' +
+      '3. Code changed but not re-deployed\n\n' +
+      'Solution: Deploy → Manage deployments → Edit → set access to "Anyone" → Deploy.'
+    );
   }
 }
 
@@ -503,6 +612,7 @@ function init() {
   });
   renderAttributes();
   updateScore();
+  checkUrlOnLoad();
 }
 
 // ══ RENDER ATTRIBUTES ══
@@ -671,6 +781,15 @@ function setSubmitting(on) {
 
 async function submitAudit() {
   if (isSubmitting) return;
+
+  // Check URL before doing anything else
+  if (!isValidExecUrl(getScriptUrl())) {
+    document.getElementById('setupBanner').classList.add('visible');
+    document.getElementById('setupBanner').scrollIntoView({ behavior: 'smooth' });
+    showToast('⚠️ Set up your Apps Script URL first (see red banner above).', 'error');
+    return;
+  }
+
   const consultant = getPinned('consultant');
   const auditor    = getPinned('auditor');
   const leadStage  = getPinned('leadStage');
@@ -723,28 +842,30 @@ async function submitAudit() {
   showStatus('⏳ Saving to sheet...', 'loading');
 
   try {
-    const { text, opaque } = await callAppsScript(params);
-    console.log('Submit response:', text, '| opaque:', opaque);
+    const { text } = await callAppsScript(params);
+    console.log('Submit response:', text);
 
     let data;
-    try { data = JSON.parse(text); } catch(e) { data = { status: 'success' }; }
+    try { data = JSON.parse(text); } catch(e) { data = { status: 'error', message: 'Unexpected response: ' + text.slice(0, 100) }; }
 
-    // Change back to:
-if (data.status === 'success') {
-      const msg = opaque
-        ? '✓ Audit sent to sheet! (CORS opaque — check sheet to confirm)'
-        : '✓ Audit saved to RAW AUDIT NEW!';
-      showStatus(msg, 'success');
+    if (data.status === 'success') {
+      showStatus('✓ Audit saved to sheet!', 'success');
       showToast('✓ Saved to sheet!', 'success');
       setTimeout(resetForm, 1200);
     } else {
-      showStatus('⚠️ ' + (data.message || 'Unknown error'), 'error');
-      showToast('⚠️ Submit failed: ' + (data.message || 'check console'), 'error');
+      const errMsg = data.message || 'Unknown error from Apps Script';
+      showStatus('⚠️ ' + errMsg, 'error');
+      showToast('⚠️ Save failed: ' + errMsg, 'error');
     }
   } catch (err) {
     console.error('Submit error:', err);
-    showStatus('⚠️ Network error — ' + err.message, 'error');
-    showToast('⚠️ Network error', 'error');
+    // Show the full error message so the user can diagnose
+    showStatus('⚠️ ' + err.message, 'error');
+    showToast('⚠️ ' + (err.message.length > 80 ? err.message.slice(0, 80) + '…' : err.message), 'error');
+    // Re-show setup banner if URL-related
+    if (err.message.includes('URL') || err.message.includes('CORS') || err.message.includes('exec')) {
+      document.getElementById('setupBanner').classList.add('visible');
+    }
   } finally {
     setSubmitting(false);
   }
@@ -755,6 +876,11 @@ let pendingFinish = null;
 
 function finishDayAudits() {
   if (isFinishing || isSubmitting) return;
+  if (!isValidExecUrl(getScriptUrl())) {
+    document.getElementById('setupBanner').classList.add('visible');
+    document.getElementById('setupBanner').scrollIntoView({ behavior:'smooth' });
+    showToast('⚠️ Set up your Apps Script URL first.', 'error'); return;
+  }
   const consultant = getPinned('consultant');
   const auditor    = getPinned('auditor');
   if (!consultant || !auditor) {
@@ -841,24 +967,18 @@ async function executeFinish() {
   const todayStr = new Date().toLocaleDateString('en-GB');
 
   try {
-    const { text, opaque } = await callAppsScript({
+    const { text } = await callAppsScript({
       action:     'finishDay',
       consultant: pendingFinish.consultant,
       auditDate:  todayStr,
       auditor:    pendingFinish.auditor
     });
 
-    console.log('Finish day response:', text, '| opaque:', opaque);
+    console.log('Finish day response:', text);
 
     let data;
-    try {
-      data = JSON.parse(text);
-    } catch(e) {
-      // If opaque (no-cors), we can't confirm outcome — show optimistic success
-      data = opaque
-        ? { status: 'success', auditsProcessed: '—', criticalCount: '—' }
-        : { status: 'error', message: 'Bad response: ' + text };
-    }
+    try { data = JSON.parse(text); }
+    catch(e) { data = { status: 'error', message: 'Bad response: ' + text.slice(0, 100) }; }
 
     if (data.status === 'success') {
       showModal('success', {
@@ -875,7 +995,7 @@ async function executeFinish() {
     }
   } catch (err) {
     console.error('Finish error:', err);
-    showModal('finish-error', 'Network error: ' + err.message);
+    showModal('finish-error', err.message);
   } finally {
     setFinishing(false);
   }
@@ -884,6 +1004,11 @@ async function executeFinish() {
 // ══ SEND ALL ══
 function sendAllReports() {
   if (isFinishing || isSubmitting) return;
+  if (!isValidExecUrl(getScriptUrl())) {
+    document.getElementById('setupBanner').classList.add('visible');
+    document.getElementById('setupBanner').scrollIntoView({ behavior:'smooth' });
+    showToast('⚠️ Set up your Apps Script URL first.', 'error'); return;
+  }
   const auditor = getPinned('auditor');
   if (!auditor) { showToast('⚠️ Pin Auditor before sending all reports.', 'error'); return; }
   showModal('sendall-confirm');
@@ -901,27 +1026,22 @@ async function executeSendAll() {
   const todayStr = new Date().toLocaleDateString('en-GB');
 
   try {
-    const { text, opaque } = await callAppsScript({
+    const { text } = await callAppsScript({
       action:    'sendAllReports',
       auditDate: todayStr,
       auditor
     });
 
-    console.log('Send all response:', text, '| opaque:', opaque);
+    console.log('Send all response:', text);
 
     let data;
-    try {
-      data = JSON.parse(text);
-    } catch(e) {
-      data = opaque
-        ? { status: 'success', totalConsultants: '—', sent: [], skipped: [], failed: [] }
-        : { status: 'error', message: text };
-    }
+    try { data = JSON.parse(text); }
+    catch(e) { data = { status: 'error', message: text.slice(0, 100) }; }
 
     showModal('sendall-done', data);
   } catch (err) {
     console.error('Send all error:', err);
-    showModal('finish-error', 'Network error: ' + err.message);
+    showModal('finish-error', err.message);
   } finally {
     setFinishing(false);
   }
@@ -942,7 +1062,6 @@ function resetForm() {
 }
 
 init();
-
 </script>
 </body>
 </html>
